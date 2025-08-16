@@ -1,0 +1,52 @@
+Task:
+
+To create a comprehensive and reproducible benchmarking framework for detecting and characterising long-range dependence in time series data.
+
+Features:
+
+1. Implement Classical Long-Range-Dependence Estimators: 
+	- Temporal: DFA, MFDFA, R/S, Higuchi; 
+	- Spectral: Whittle MLE, Periodogram, GPH; 
+	- Wavelet: Wavelet Leaders, Wavelet Whittle
+
+2. Statistical Validation:
+	- Hypothesis Testing and CI Bootstrapping
+	- Out-Of-Distribution (OOD) and Marginal Distribution Testing 
+	- Monte Carlo Significance Testing
+	- Robustness Testing and Sensitivity Analysis (Heavy-tail fluctuations, non-stationarity, irregular sampling, outliers)
+	- Cross Validation Mechanisms
+
+3. Efficiency and Optimisation (JAX and NUMBA):
+	- Algorithmic efficiency driven development
+	- Parallelisation focus
+	- Memory efficiency focus
+	- Balanced effective, optimised, efficiency strategy
+
+4. User-Interface and Documentation:
+	- Document simple use cases and best practices strategy
+	- Document data, analysis, and benchmarking specification
+	- Document API usage and examples
+	- Document development updates, date, issues, impacts, fixes
+
+5. Extension, Reproducibility, and Utility
+	- new algorithmic standards and registration
+	- automated synthetic dataset generation
+	- new dataset standards and registration
+	- automated data processing and standards conformity (ARFIMA, fBm, fGn, fSDE)
+	- time series contamination
+
+6. Performance Benchmarking and Summarisation
+	- Error/Uncertainty Quantification
+	- Accuracy and Efficiency (time and memory)
+	- Head-to-head performance comparison
+	- Performance Leaderboard
+	- Full performance benchmarking analysis
+
+7. Testing, Validation and Maintenance:
+	- Test-Driven Development
+	- Unit Testing
+	- Automated CI and CD
+	- Repository Maintenance (GitHub)
+
+8. Deployment Strategy:
+	- Manuscript draft for research publication (markdown)
