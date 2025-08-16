@@ -256,6 +256,9 @@ class MFDFAEstimator(BaseEstimator):
         
     def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
         """Estimate multifractal properties using MFDFA."""
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
             
@@ -271,14 +274,22 @@ class MFDFAEstimator(BaseEstimator):
         # Calculate multifractal spectrum
         self._calculate_multifractal_spectrum()
         
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
         return self.get_results()
         
     def _validate_data(self):
         """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
         if len(self.data) < 100:
             raise ValueError("Data must have at least 100 points for reliable MFDFA analysis")
         if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
             raise ValueError("Data contains NaN or infinite values")
+        # Check if data is constant (which would cause issues)
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
             
     def _generate_scales(self):
         """Generate scale values for analysis."""
@@ -439,10 +450,11 @@ class RSEstimator(BaseEstimator):
     
     def __init__(self, name: str = "R/S", **kwargs):
         super().__init__(name=name, **kwargs)
-        self.min_scale = kwargs.get('min_scale', 10)
+        self.min_scale = kwargs.get('min_scale', 4)
         self.max_scale = kwargs.get('max_scale', None)
         self.num_scales = kwargs.get('num_scales', 20)
         self.confidence_level = kwargs.get('confidence_level', 0.95)
+        self.n_bootstrap = kwargs.get('n_bootstrap', 1000)
         self.data = None
         self.scales = None
         self.rs_values = None
@@ -458,6 +470,9 @@ class RSEstimator(BaseEstimator):
         
     def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
         """Estimate Hurst exponent using R/S analysis."""
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
             
@@ -473,14 +488,22 @@ class RSEstimator(BaseEstimator):
         # Calculate confidence interval
         self._calculate_confidence_interval()
         
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
         return self.get_results()
         
     def _validate_data(self):
         """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
         if len(self.data) < 100:
             raise ValueError("Data must have at least 100 points for reliable R/S analysis")
         if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
             raise ValueError("Data contains NaN or infinite values")
+        # Check if data is constant (which would cause issues)
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
             
     def _generate_scales(self):
         """Generate scale values for analysis."""
@@ -688,6 +711,9 @@ class HiguchiEstimator(BaseEstimator):
         
     def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
         """Estimate fractal dimension using Higuchi method."""
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
             
@@ -703,14 +729,22 @@ class HiguchiEstimator(BaseEstimator):
         # Calculate confidence interval
         self._calculate_confidence_interval()
         
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
         return self.get_results()
         
     def _validate_data(self):
         """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
         if len(self.data) < 50:
             raise ValueError("Data must have at least 50 points for reliable Higuchi analysis")
         if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
             raise ValueError("Data contains NaN or infinite values")
+        # Check if data is constant (which would cause issues)
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
             
     def _generate_k_values(self):
         """Generate k values for analysis."""

@@ -1,0 +1,37 @@
+estimator,dataset_size,execution_time,memory_peak_mb,memory_final_mb,success,error_message,metric_estimator_execution_time,metric_estimator_memory_usage,metric_run_number
+HighPerformanceMFDFA,100,10.450997114181519,181.12109375,181.28515625,True,,10.23256778717041,4912.0,0
+HighPerformanceMFDFA,100,7.282351732254028,0.1328125,-8.42578125,True,,7.281747102737427,4912.0,1
+HighPerformanceDFA,100,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,0
+HighPerformanceDFA,100,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,1
+HighPerformanceMFDFA,500,35.214287519454956,8.83984375,9.1171875,True,,35.00667643547058,5440.0,0
+HighPerformanceMFDFA,500,31.61246418952942,20.75390625,12.6171875,True,,31.611214876174927,5440.0,1
+HighPerformanceDFA,500,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,0
+HighPerformanceDFA,500,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,1
+HighPerformanceMFDFA,1000,58.22074770927429,0.0,-4.58984375,True,,58.01845717430115,5440.0,0
+HighPerformanceMFDFA,1000,54.231987714767456,5.28515625,9.21484375,True,,54.230957984924316,5440.0,1
+HighPerformanceDFA,1000,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,0
+HighPerformanceDFA,1000,0.0,0.0,0.0,False,"Abstract tracer value encountered where concrete value is expected: traced array with shape int64[]
+'num' argument of jnp.logspace
+The error occurred while tracing the function fast_logspace at C:\Users\davia\long-range-dependence-project-2\src\utils\jax_utils.py:153 for jit. This concrete value was not available in Python because it depends on the value of the argument num.
+
+See https://docs.jax.dev/en/latest/errors.html#jax.errors.ConcretizationTypeError",,,1

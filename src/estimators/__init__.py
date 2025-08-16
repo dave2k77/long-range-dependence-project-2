@@ -17,6 +17,10 @@ try:
     from .high_performance_rs import HighPerformanceRSEstimator
     from .high_performance_higuchi import HighPerformanceHiguchiEstimator
     from .high_performance_whittle import HighPerformanceWhittleMLEEstimator
+    from .high_performance_periodogram import HighPerformancePeriodogramEstimator
+    from .high_performance_gph import HighPerformanceGPHEstimator
+    from .high_performance_wavelet_leaders import HighPerformanceWaveletLeadersEstimator
+    from .high_performance_wavelet_whittle import HighPerformanceWaveletWhittleEstimator
     HIGH_PERFORMANCE_AVAILABLE = True
 except ImportError:
     HIGH_PERFORMANCE_AVAILABLE = False
@@ -41,5 +45,9 @@ if HIGH_PERFORMANCE_AVAILABLE:
         "HighPerformanceMFDFAEstimator",
         "HighPerformanceRSEstimator",
         "HighPerformanceHiguchiEstimator",
-        "HighPerformanceWhittleMLEEstimator"
+        "HighPerformanceWhittleMLEEstimator",
+        "HighPerformancePeriodogramEstimator",
+        "HighPerformanceGPHEstimator",
+        "HighPerformanceWaveletLeadersEstimator",
+        "HighPerformanceWaveletWhittleEstimator"
     ])

@@ -84,6 +84,9 @@ class WhittleMLEEstimator(BaseEstimator):
         Dict[str, Any]
             Dictionary containing Whittle MLE estimation results
         """
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
         
@@ -102,13 +105,17 @@ class WhittleMLEEstimator(BaseEstimator):
         # Calculate Hurst exponent
         hurst_exponent = (alpha_estimate + 1) / 2
         
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
         results = {
             'alpha': alpha_estimate,
             'hurst_exponent': hurst_exponent,
             'optimization_success': optimization_success,
             'frequencies': self.frequencies,
             'periodogram_values': self.periodogram_values,
-            'method': 'WhittleMLE'
+            'method': 'WhittleMLE',
+            'execution_time': self.execution_time
         }
         
         return results
@@ -223,6 +230,8 @@ class PeriodogramEstimator(BaseEstimator):
         self.nperseg = kwargs.get('nperseg', None)
         self.nfft = kwargs.get('nfft', None)
         self.frequency_range = kwargs.get('frequency_range', [0.01, 0.5])
+        self.min_freq = kwargs.get('min_freq', 0.01)
+        self.num_freq = kwargs.get('num_freq', 256)
         self.confidence_level = kwargs.get('confidence_level', 0.95)
         self.data = None
         self.frequencies = None
@@ -238,6 +247,9 @@ class PeriodogramEstimator(BaseEstimator):
         
     def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
         """Estimate Hurst exponent using periodogram analysis."""
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
             
@@ -252,6 +264,9 @@ class PeriodogramEstimator(BaseEstimator):
         
         # Calculate confidence interval
         self._calculate_confidence_interval()
+        
+        # Record execution time
+        self.execution_time = time.time() - start_time
         
         return self.get_results()
         
@@ -431,6 +446,8 @@ class GPHEstimator(BaseEstimator):
         super().__init__(name=name, **kwargs)
         self.num_frequencies = kwargs.get('num_frequencies', 50)
         self.frequency_threshold = kwargs.get('frequency_threshold', 0.1)
+        self.min_freq = kwargs.get('min_freq', 0.01)
+        self.num_freq = kwargs.get('num_freq', 50)
         self.confidence_level = kwargs.get('confidence_level', 0.95)
         self.data = None
         self.frequencies = None
@@ -447,6 +464,9 @@ class GPHEstimator(BaseEstimator):
         
     def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
         """Estimate fractional differencing parameter using GPH method."""
+        import time
+        start_time = time.time()
+        
         if data is not None:
             self.fit(data, **kwargs)
             
@@ -461,6 +481,9 @@ class GPHEstimator(BaseEstimator):
         
         # Calculate confidence interval
         self._calculate_confidence_interval()
+        
+        # Record execution time
+        self.execution_time = time.time() - start_time
         
         return self.get_results()
         
