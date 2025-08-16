@@ -16,6 +16,7 @@ try:
     from .high_performance_dfa import HighPerformanceDFAEstimator
     from .high_performance_rs import HighPerformanceRSEstimator
     from .high_performance_higuchi import HighPerformanceHiguchiEstimator
+    from .high_performance_whittle import HighPerformanceWhittleMLEEstimator
     HIGH_PERFORMANCE_AVAILABLE = True
 except ImportError:
     HIGH_PERFORMANCE_AVAILABLE = False
@@ -39,5 +40,6 @@ if HIGH_PERFORMANCE_AVAILABLE:
         "HighPerformanceDFAEstimator",
         "HighPerformanceMFDFAEstimator",
         "HighPerformanceRSEstimator",
-        "HighPerformanceHiguchiEstimator"
+        "HighPerformanceHiguchiEstimator",
+        "HighPerformanceWhittleMLEEstimator"
     ])
