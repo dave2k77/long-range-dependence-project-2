@@ -170,7 +170,32 @@ class JAXOptimizer:
         jnp.ndarray
             Log-spaced array
         """
-        return jnp.logspace(start, stop, num)
+        try:
+            return jnp.logspace(start, stop, num)
+        except Exception as e:
+            # JAX failed - this is expected for dynamic shapes
+            raise RuntimeError(f"JAX logspace failed (expected for dynamic shapes): {e}")
+    
+    @staticmethod
+    def fast_logspace_numpy(start: float, stop: float, num: int) -> np.ndarray:
+        """
+        Numpy fallback for logspace generation.
+        
+        Parameters
+        ----------
+        start : float
+            Start value (log10)
+        stop : float
+            Stop value (log10)
+        num : int
+            Number of points
+            
+        Returns
+        -------
+        np.ndarray
+            Log-spaced array
+        """
+        return np.logspace(start, stop, num)
     
     @staticmethod
     @jit

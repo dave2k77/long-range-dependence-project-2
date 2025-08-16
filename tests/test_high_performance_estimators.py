@@ -71,6 +71,7 @@ class TestHighPerformanceDFAEstimator:
     def test_validate_data(self):
         """Test data validation."""
         # Test valid data
+        self.estimator.data = self.fbm_data
         self.estimator._validate_data()
         
         # Test data too short
@@ -80,12 +81,17 @@ class TestHighPerformanceDFAEstimator:
         
         # Test data with NaN
         with pytest.raises(ValueError, match="NaN or infinite values"):
-            self.estimator.data = np.array([1, 2, np.nan, 4])
+            self.estimator.data = np.concatenate([self.fbm_data[:200], np.array([np.nan])])
             self.estimator._validate_data()
         
         # Test data with inf
         with pytest.raises(ValueError, match="NaN or infinite values"):
-            self.estimator.data = np.array([1, 2, np.inf, 4])
+            self.estimator.data = np.concatenate([self.fbm_data[:200], np.array([np.inf])])
+            self.estimator._validate_data()
+        
+        # Test constant data
+        with pytest.raises(ValueError, match="constant"):
+            self.estimator.data = np.ones(200)
             self.estimator._validate_data()
 
     def test_generate_scales(self):
@@ -357,6 +363,7 @@ class TestHighPerformanceMFDFAEstimator:
     def test_validate_data(self):
         """Test data validation."""
         # Test valid data
+        self.estimator.data = self.fbm_data
         self.estimator._validate_data()
         
         # Test data too short
@@ -366,12 +373,17 @@ class TestHighPerformanceMFDFAEstimator:
         
         # Test data with NaN
         with pytest.raises(ValueError, match="NaN or infinite values"):
-            self.estimator.data = np.array([1, 2, np.nan, 4])
+            self.estimator.data = np.concatenate([self.fbm_data[:200], np.array([np.nan])])
             self.estimator._validate_data()
         
         # Test data with inf
         with pytest.raises(ValueError, match="NaN or infinite values"):
-            self.estimator.data = np.array([1, 2, np.inf, 4])
+            self.estimator.data = np.concatenate([self.fbm_data[:200], np.array([np.inf])])
+            self.estimator._validate_data()
+        
+        # Test constant data
+        with pytest.raises(ValueError, match="constant"):
+            self.estimator.data = np.ones(200)
             self.estimator._validate_data()
 
     def test_generate_scales(self):

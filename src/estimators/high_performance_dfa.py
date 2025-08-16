@@ -74,6 +74,11 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         self.use_gpu = use_gpu
         self.memory_efficient = memory_efficient
         
+        # Performance optimization: caching
+        self._scale_cache = {}
+        self._cache_hits = 0
+        self._cache_misses = 0
+        
         # Initialize optimization frameworks
         self._initialize_optimization_frameworks()
         
@@ -128,75 +133,112 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         self : HighPerformanceDFAEstimator
             Fitted estimator instance
         """
-        start_time = time.time()
+        # Store data
+        self.data = np.asarray(data, dtype=np.float64)
         
-        with self.memory_manager.memory_context("DFA fitting"):
-            self.data = np.asarray(data, dtype=np.float64)
-            self._validate_data()
-            
-            # Optimize memory layout
-            if self.memory_efficient:
-                self.data = self.memory_manager.optimize_memory_layout([self.data])[0]
-            
-            # Generate scales
-            self._generate_scales()
-            
-            # Pre-allocate memory pools if needed
-            if self.memory_efficient:
-                self._setup_memory_pools()
+        # Validate data
+        self._validate_data()
         
-        self.performance_metrics['fit_time'] = time.time() - start_time
-        logger.info(f"DFA fitting completed in {self.performance_metrics['fit_time']:.3f} seconds")
+        # Generate scales
+        self._generate_scales()
         
+        # Setup memory pools if memory efficient
+        if self.memory_efficient:
+            self._setup_memory_pools()
+        
+        logger.info(f"DFA fitting completed")
         return self
     
-    def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
+    def estimate(self, data: np.ndarray, **kwargs) -> Dict[str, Any]:
         """
-        Estimate long-range dependence using high-performance DFA.
+        Estimate long-range dependence using DFA.
         
         Parameters
         ----------
-        data : np.ndarray, optional
-            Input time series data (if not provided, uses fitted data)
+        data : np.ndarray
+            Input time series data
         **kwargs
             Additional estimation parameters
             
         Returns
         -------
         Dict[str, Any]
-            Dictionary containing DFA estimation results
+            Estimation results including Hurst exponent
         """
-        if data is not None:
-            self.fit(data, **kwargs)
-        
-        if self.data is None:
-            raise ValueError("No data provided. Call fit() first.")
-        
         start_time = time.time()
         
-        with self.memory_manager.memory_context("DFA estimation"):
-            # Calculate fluctuations using selected backend
+        # Store data
+        self.data = np.asarray(data, dtype=np.float64)
+        
+        # Validate data
+        self._validate_data()
+        
+        try:
+            # Generate scales
+            self._generate_scales()
+            
+            # Setup memory pools if memory efficient
+            if self.memory_efficient:
+                self._setup_memory_pools()
+            
+            # Calculate fluctuations
             if self.optimization_backend == "jax":
                 self.fluctuations = self._calculate_fluctuations_jax()
-            else:
+            elif self.optimization_backend == "numba":
                 self.fluctuations = self._calculate_fluctuations_numba()
-            
-            # Fit power law to get Hurst exponent
-            if self.optimization_backend == "jax":
-                hurst_exponent, r_squared, std_error = self._fit_power_law_jax()
             else:
-                hurst_exponent, r_squared, std_error = self._fit_power_law_numba()
+                # Auto mode - try JAX first, then NUMBA, then numpy
+                try:
+                    self.fluctuations = self._calculate_fluctuations_jax()
+                except Exception as e:
+                    logger.warning(f"JAX failed, trying NUMBA: {e}")
+                    try:
+                        self.fluctuations = self._calculate_fluctuations_numba()
+                    except Exception as e2:
+                        logger.warning(f"NUMBA failed, using numpy fallback: {e2}")
+                        self.fluctuations = self._calculate_fluctuations_numpy()
             
-            # Calculate alpha (long-range dependence parameter)
-            alpha = 2 * hurst_exponent - 1
+            # Fit power law
+            if self.optimization_backend == "jax":
+                slope, intercept, r_value = self._fit_power_law_jax()
+            elif self.optimization_backend == "numba":
+                slope, intercept, r_value = self._fit_power_law_numba()
+            else:
+                # Auto mode - try JAX first, then NUMBA, then numpy
+                try:
+                    slope, intercept, r_value = self._fit_power_law_jax()
+                except Exception as e:
+                    logger.warning(f"JAX power law fitting failed, trying NUMBA: {e}")
+                    try:
+                        slope, intercept, r_value = self._fit_power_law_numba()
+                    except Exception as e2:
+                        logger.warning(f"NUMBA power law fitting failed, using numpy fallback: {e2}")
+                        slope, intercept, r_value = self._fit_power_law_numpy()
+            
+            # Calculate Hurst exponent
+            hurst_exponent = slope / 2.0
+            
+            # Calculate standard error
+            std_error = self._calculate_standard_error()
+            
+        except Exception as e:
+            # Complete fallback to numpy implementation
+            logger.error(f"All optimization methods failed, using complete numpy fallback: {e}")
+            return self._estimate_numpy_fallback(data, **kwargs)
         
         estimation_time = time.time() - start_time
         self.performance_metrics['estimation_time'] = estimation_time
         
+        # Store results
+        self.hurst_exponent = hurst_exponent
+        self.r_squared = r_value ** 2
+        
+        # Prepare results
         results = {
             'hurst_exponent': hurst_exponent,
-            'alpha': alpha,
-            'r_squared': r_squared,
+            'r_squared': r_value ** 2,
+            'slope': slope,
+            'intercept': intercept,
             'std_error': std_error,
             'scales': self.scales,
             'fluctuations': self.fluctuations,
@@ -206,6 +248,56 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         }
         
         logger.info(f"DFA estimation completed in {estimation_time:.3f} seconds")
+        return results
+    
+    def _estimate_numpy_fallback(self, data: np.ndarray, **kwargs) -> Dict[str, Any]:
+        """Complete numpy fallback implementation."""
+        start_time = time.time()
+        
+        # Store data
+        self.data = np.asarray(data, dtype=np.float64)
+        
+        # Validate data
+        self._validate_data()
+        
+        # Generate scales using numpy
+        self._generate_scales()
+        
+        # Calculate fluctuations using numpy
+        self.fluctuations = self._calculate_fluctuations_numpy()
+        
+        # Fit power law using numpy
+        slope, intercept, r_value = self._fit_power_law_numpy()
+        
+        # Calculate Hurst exponent
+        hurst_exponent = slope / 2.0
+        
+        # Calculate standard error
+        std_error = self._calculate_standard_error()
+        
+        estimation_time = time.time() - start_time
+        self.performance_metrics['estimation_time'] = estimation_time
+        self.performance_metrics['fallback_used'] = True
+        
+        # Store results
+        self.hurst_exponent = hurst_exponent
+        self.r_squared = r_value ** 2
+        
+        # Prepare results
+        results = {
+            'hurst_exponent': hurst_exponent,
+            'r_squared': r_value ** 2,
+            'slope': slope,
+            'intercept': intercept,
+            'std_error': std_error,
+            'scales': self.scales,
+            'fluctuations': self.fluctuations,
+            'method': 'HighPerformanceDFA',
+            'optimization_backend': 'numpy_fallback',
+            'performance_metrics': self.performance_metrics
+        }
+        
+        logger.info(f"DFA estimation completed using numpy fallback in {estimation_time:.3f} seconds")
         return results
     
     def _validate_data(self):
@@ -224,27 +316,77 @@ class HighPerformanceDFAEstimator(BaseEstimator):
             self.memory_efficient = True
     
     def _generate_scales(self):
-        """Generate scales for analysis."""
+        """Generate scales for analysis with caching optimization."""
         if self.max_scale is None:
             self.max_scale = len(self.data) // 4
         
-        if self.optimization_backend == "jax":
-            # Use JAX for scale generation
-            self.scales = self.jax_optimizer.fast_logspace(
-                np.log10(self.min_scale),
-                np.log10(self.max_scale),
-                self.num_scales
-            )
-        else:
-            # Use NUMBA for scale generation
-            self.scales = self.numba_optimizer.fast_logspace(
-                np.log10(self.min_scale),
-                np.log10(self.max_scale),
-                self.num_scales
-            )
+        # Create cache key
+        cache_key = (self.min_scale, self.max_scale, self.num_scales)
+        
+        # Check cache first
+        if cache_key in self._scale_cache:
+            self.scales = self._scale_cache[cache_key]
+            self._cache_hits += 1
+            logger.debug(f"Scale cache hit! Using cached scales for {cache_key}")
+            return
+        
+        # Cache miss - generate new scales
+        self._cache_misses += 1
+        
+        try:
+            if self.optimization_backend == "jax":
+                # Use JAX for scale generation
+                self.scales = self.jax_optimizer.fast_logspace(
+                    np.log10(self.min_scale),
+                    np.log10(self.max_scale),
+                    self.num_scales
+                )
+            else:
+                # Use NUMBA for scale generation
+                self.scales = self.numba_optimizer.fast_logspace(
+                    np.log10(self.min_scale),
+                    np.log10(self.max_scale),
+                    self.num_scales
+                )
+        except Exception as e:
+            # JAX/NUMBA failed - fall back to numpy
+            logger.warning(f"JAX/NUMBA scale generation failed, falling back to numpy: {e}")
+            self.scales = self._generate_scales_numpy()
         
         # Ensure unique scales and convert to integers
         self.scales = np.unique(self.scales.astype(int))
+        
+        # Cache the result
+        self._scale_cache[cache_key] = self.scales.copy()
+        
+        # Limit cache size to prevent memory issues
+        if len(self._scale_cache) > 100:
+            # Remove oldest entries
+            oldest_key = next(iter(self._scale_cache))
+            del self._scale_cache[oldest_key]
+            logger.debug("Scale cache size limit reached, removed oldest entry")
+    
+    def _generate_scales_numpy(self) -> np.ndarray:
+        """Generate scales using numpy."""
+        return np.logspace(
+            np.log10(self.min_scale),
+            np.log10(self.max_scale),
+            self.num_scales
+        )
+    
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get caching performance statistics."""
+        total_requests = self._cache_hits + self._cache_misses
+        hit_rate = self._cache_hits / total_requests if total_requests > 0 else 0.0
+        
+        return {
+            'cache_hits': self._cache_hits,
+            'cache_misses': self._cache_misses,
+            'total_requests': total_requests,
+            'hit_rate': hit_rate,
+            'cache_size': len(self._scale_cache),
+            'cache_efficiency': f"{hit_rate:.1%}"
+        }
     
     def _setup_memory_pools(self):
         """Setup memory pools for efficient processing."""
@@ -281,18 +423,52 @@ class HighPerformanceDFAEstimator(BaseEstimator):
     
     def _calculate_fluctuations_jax(self) -> np.ndarray:
         """Calculate fluctuations using JAX optimization."""
-        # Convert data to JAX array
-        data_jax = jnp.array(self.data)
-        scales_jax = jnp.array(self.scales)
+        try:
+            # Convert data to JAX array
+            data_jax = jnp.array(self.data)
+            scales_jax = jnp.array(self.scales)
+            
+            # Vectorized processing using JAX
+            def process_scale(scale):
+                return self._process_scale_jax(data_jax, scale)
+            
+            # Use JAX vectorization
+            fluctuations = jax.vmap(process_scale)(scales_jax)
+            
+            return np.array(fluctuations)
+        except Exception as e:
+            # JAX compilation failed - fall back to numpy
+            logger.warning(f"JAX fluctuation calculation failed, falling back to numpy: {e}")
+            return self._calculate_fluctuations_numpy()
+    
+    def _calculate_fluctuations_numpy(self) -> np.ndarray:
+        """Calculate fluctuations using numpy optimization."""
+        fluctuations = np.zeros(len(self.scales), dtype=np.float64)
         
-        # Vectorized processing using JAX
-        def process_scale(scale):
-            return self._process_scale_jax(data_jax, scale)
+        for i, scale in enumerate(self.scales):
+            segment_fluctuations = self._process_scale_numpy(scale)
+            # Fix: Check array length instead of truthiness
+            if len(segment_fluctuations) > 0:
+                fluctuations[i] = np.mean(segment_fluctuations)
+            else:
+                fluctuations[i] = 0.0
         
-        # Use JAX vectorization
-        fluctuations = jax.vmap(process_scale)(scales_jax)
+        return fluctuations
+    
+    def _calculate_fluctuations_numpy_vectorized(self) -> np.ndarray:
+        """Calculate fluctuations using numpy optimization with vectorized operations."""
+        fluctuations = np.zeros(len(self.scales), dtype=np.float64)
         
-        return np.array(fluctuations)
+        # Vectorized processing for better performance
+        for i, scale in enumerate(self.scales):
+            segment_fluctuations = self._process_scale_numpy_vectorized(scale)
+            # Fix: Check array length instead of truthiness
+            if len(segment_fluctuations) > 0:
+                fluctuations[i] = np.mean(segment_fluctuations)
+            else:
+                fluctuations[i] = 0.0
+        
+        return fluctuations
     
     def _process_scale_numba(self, scale: int) -> List[float]:
         """Process a single scale using NUMBA."""
@@ -372,6 +548,77 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         
         return float(jnp.mean(rms_values))
     
+    def _process_scale_numpy(self, scale: int) -> List[float]:
+        """Process a single scale using numpy."""
+        segment_fluctuations = []
+        
+        # Divide data into segments
+        num_segments = len(self.data) // scale
+        if num_segments == 0:
+            return segment_fluctuations
+        
+        for i in range(num_segments):
+            start_idx = i * scale
+            end_idx = start_idx + scale
+            segment = self.data[start_idx:end_idx]
+            
+            # Use numpy-based detrending
+            detrended = self._detrend_numpy(segment, self.polynomial_order)
+            
+            # Use numpy-based RMS calculation
+            rms = np.sqrt(np.mean(detrended ** 2))
+            segment_fluctuations.append(rms)
+        
+        return segment_fluctuations
+    
+    def _process_scale_numpy_vectorized(self, scale: int) -> np.ndarray:
+        """Process a single scale using numpy with vectorized operations."""
+        # Divide data into segments
+        num_segments = len(self.data) // scale
+        if num_segments == 0:
+            return np.array([])
+        
+        # Pre-allocate array for better performance
+        segment_fluctuations = np.zeros(num_segments, dtype=np.float64)
+        
+        # Vectorized segment extraction
+        segment_indices = np.arange(num_segments)
+        start_indices = segment_indices * scale
+        end_indices = start_indices + scale
+        
+        # Process all segments at once where possible
+        for i, (start, end) in enumerate(zip(start_indices, end_indices)):
+            segment = self.data[start:end]
+            
+            # Use vectorized detrending
+            detrended = self._detrend_numpy_vectorized(segment, self.polynomial_order)
+            
+            # Use vectorized RMS calculation
+            segment_fluctuations[i] = np.sqrt(np.mean(detrended ** 2))
+        
+        return segment_fluctuations
+    
+    def _detrend_numpy(self, data: np.ndarray, order: int) -> np.ndarray:
+        """Detrend data using numpy polynomial fitting."""
+        if order == 0:
+            return data - np.mean(data)
+        
+        x = np.arange(len(data))
+        coeffs = np.polyfit(x, data, order)
+        trend = np.polyval(coeffs, x)
+        return data - trend
+    
+    def _detrend_numpy_vectorized(self, data: np.ndarray, order: int) -> np.ndarray:
+        """Detrend data using numpy with vectorized operations."""
+        if order == 0:
+            return data - np.mean(data)
+        
+        # Vectorized polynomial fitting
+        x = np.arange(len(data), dtype=np.float64)
+        coeffs = np.polyfit(x, data, order)
+        trend = np.polyval(coeffs, x)
+        return data - trend
+    
     def _fit_power_law_numba(self) -> Tuple[float, float, float]:
         """Fit power law using NUMBA optimization."""
         if len(self.scales) != len(self.fluctuations):
@@ -388,6 +635,25 @@ class HighPerformanceDFAEstimator(BaseEstimator):
     
     def _fit_power_law_jax(self) -> Tuple[float, float, float]:
         """Fit power law using JAX optimization."""
+        try:
+            if len(self.scales) != len(self.fluctuations):
+                # Filter out scales where fluctuations couldn't be calculated
+                valid_indices = np.arange(len(self.scales))[:len(self.fluctuations)]
+                scales = self.scales[valid_indices]
+            else:
+                scales = self.scales
+            
+            # Use JAX-optimized linear regression
+            return self.jax_optimizer.fast_linregress(
+                jnp.log(scales), jnp.log(self.fluctuations)
+            )
+        except Exception as e:
+            # JAX compilation failed - fall back to numpy
+            logger.warning(f"JAX power law fitting failed, falling back to numpy: {e}")
+            return self._fit_power_law_numpy()
+    
+    def _fit_power_law_numpy(self) -> Tuple[float, float, float]:
+        """Fit power law using numpy optimization with vectorized operations."""
         if len(self.scales) != len(self.fluctuations):
             # Filter out scales where fluctuations couldn't be calculated
             valid_indices = np.arange(len(self.scales))[:len(self.fluctuations)]
@@ -395,10 +661,78 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         else:
             scales = self.scales
         
-        # Use JAX-optimized linear regression
-        return self.jax_optimizer.fast_linregress(
-            jnp.log(scales), jnp.log(self.fluctuations)
-        )
+        # Vectorized logarithmic transformation
+        log_scales = np.log(scales.astype(np.float64))
+        log_fluctuations = np.log(self.fluctuations.astype(np.float64))
+        
+        # Vectorized linear regression
+        n = len(log_scales)
+        if n < 2:
+            return 0.0, 0.0, 0.0
+        
+        # Vectorized mean calculation
+        x_mean = np.mean(log_scales)
+        y_mean = np.mean(log_fluctuations)
+        
+        # Vectorized difference calculation
+        dx = log_scales - x_mean
+        dy = log_fluctuations - y_mean
+        
+        # Vectorized sum calculations
+        sum_xy = np.sum(dx * dy)
+        sum_xx = np.sum(dx * dx)
+        
+        # Calculate slope and intercept
+        if sum_xx == 0.0:
+            return 0.0, y_mean, 0.0
+        
+        slope = sum_xy / sum_xx
+        intercept = y_mean - slope * x_mean
+        
+        # Vectorized R-squared calculation
+        sum_yy = np.sum(dy * dy)
+        r_squared = (sum_xy * sum_xy) / (sum_xx * sum_yy) if sum_yy > 0.0 else 0.0
+        r_value = np.sqrt(r_squared) if r_squared >= 0.0 else 0.0
+        
+        return slope, intercept, r_value
+    
+    def _calculate_standard_error(self) -> float:
+        """Calculate standard error of the Hurst exponent estimate."""
+        if len(self.scales) < 3:
+            return 0.0
+        
+        # Calculate residuals from power law fit
+        log_scales = np.log(self.scales)
+        log_fluctuations = np.log(self.fluctuations)
+        
+        # Simple linear regression for error calculation
+        n = len(log_scales)
+        x_mean = np.mean(log_scales)
+        y_mean = np.mean(log_fluctuations)
+        
+        dx = log_scales - x_mean
+        dy = log_fluctuations - y_mean
+        sum_xy = np.sum(dx * dy)
+        sum_xx = np.sum(dx * dx)
+        
+        if sum_xx == 0.0:
+            return 0.0
+        
+        slope = sum_xy / sum_xx
+        intercept = y_mean - slope * x_mean
+        
+        # Calculate residuals
+        predicted = slope * log_scales + intercept
+        residuals = log_fluctuations - predicted
+        
+        # Calculate standard error
+        if n > 2:
+            mse = np.sum(residuals ** 2) / (n - 2)
+            std_error = np.sqrt(mse / sum_xx)
+        else:
+            std_error = 0.0
+        
+        return std_error
     
     def batch_estimate(self, data_batch: List[np.ndarray], 
                       **kwargs) -> List[Dict[str, Any]]:
@@ -454,6 +788,7 @@ class HighPerformanceDFAEstimator(BaseEstimator):
         """
         memory_summary = self.memory_manager.get_memory_summary()
         parallel_summary = self.parallel_processor.get_performance_summary()
+        cache_stats = self.get_cache_stats()
         
         summary = {
             'estimator_name': self.name,
@@ -463,8 +798,15 @@ class HighPerformanceDFAEstimator(BaseEstimator):
             'performance_metrics': self.performance_metrics,
             'memory_summary': memory_summary,
             'parallel_summary': parallel_summary,
+            'cache_performance': cache_stats,
             'data_size': len(self.data) if self.data is not None else 0,
-            'scales_count': len(self.scales) if self.scales is not None else 0
+            'scales_count': len(self.scales) if self.scales is not None else 0,
+            'optimization_features': {
+                'vectorized_operations': True,
+                'caching_enabled': True,
+                'memory_pools': self.memory_efficient,
+                'parallel_processing': True
+            }
         }
         
         return summary
