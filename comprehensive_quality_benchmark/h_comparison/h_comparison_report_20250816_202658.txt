@@ -1,0 +1,197 @@
+COMPREHENSIVE H-VALUE COMPARISON REPORT
+============================================================
+
+Generated: 2025-08-16 20:32:12
+Total comparisons: 158
+
+DATASET SUMMARY:
+----------------------------------------
+dataset_type  domain    
+realistic     biomedical     6
+              climate        9
+              financial      4
+              hydrology      6
+synthetic     biomedical    29
+              climate       36
+              financial     33
+              hydrology     35
+
+ESTIMATOR SUMMARY:
+----------------------------------------
+
+DFA:
+  Total estimates: 29
+  Synthetic data estimates: 24
+  Mean accuracy: 0.8201
+  Accuracy std: 0.1519
+  Realistic data estimates: 5
+  Mean agreement: -0.0847
+  Agreement std: 0.6475
+  H value range: 0.5184 - 0.9478
+  Mean H: 0.7921
+  H std: 0.0999
+
+Higuchi:
+  Total estimates: 29
+  Synthetic data estimates: 25
+  Mean accuracy: 0.7923
+  Accuracy std: 0.1290
+  Realistic data estimates: 4
+  Mean agreement: 0.1349
+  Agreement std: 0.4853
+  H value range: 0.6080 - 0.9492
+  Mean H: 0.8014
+  H std: 0.0966
+
+Whittle:
+  Total estimates: 23
+  Synthetic data estimates: 19
+  Mean accuracy: 0.8229
+  Accuracy std: 0.1493
+  Realistic data estimates: 4
+  Mean agreement: 0.2376
+  Agreement std: 0.4272
+  H value range: 0.6180 - 0.9459
+  Mean H: 0.7905
+  H std: 0.1166
+
+WaveletWhittle:
+  Total estimates: 30
+  Synthetic data estimates: 26
+  Mean accuracy: 0.7894
+  Accuracy std: 0.1788
+  Realistic data estimates: 4
+  Mean agreement: -0.1681
+  Agreement std: 0.4004
+  H value range: 0.6009 - 0.9499
+  Mean H: 0.7900
+  H std: 0.0931
+
+GPH:
+  Total estimates: 19
+  Synthetic data estimates: 15
+  Mean accuracy: 0.8878
+  Accuracy std: 0.0818
+  Realistic data estimates: 4
+  Mean agreement: 0.3336
+  Agreement std: 0.4683
+  H value range: 0.6782 - 0.8710
+  Mean H: 0.7729
+  H std: 0.0552
+
+RS:
+  Total estimates: 28
+  Synthetic data estimates: 24
+  Mean accuracy: 0.8071
+  Accuracy std: 0.1466
+  Realistic data estimates: 4
+  Mean agreement: 0.3611
+  Agreement std: 0.5360
+  H value range: 0.6222 - 0.9423
+  Mean H: 0.7787
+  H std: 0.0934
+
+
+DOMAIN-SPECIFIC ANALYSIS:
+----------------------------------------
+
+HYDROLOGY:
+  Synthetic datasets: 35
+  Ground truth H values: [np.float64(0.6)]
+    DFA: 8 estimates
+      Mean accuracy: 0.6571
+    Higuchi: 9 estimates
+      Mean accuracy: 0.6819
+    Whittle: 6 estimates
+      Mean accuracy: 0.6916
+    WaveletWhittle: 8 estimates
+      Mean accuracy: 0.5397
+    GPH: 3 estimates
+      Mean accuracy: 0.7844
+    RS: 7 estimates
+      Mean accuracy: 0.6536
+
+FINANCIAL:
+  Synthetic datasets: 33
+  Ground truth H values: [np.float64(0.7)]
+    Higuchi: 7 estimates
+      Mean accuracy: 0.7889
+    RS: 9 estimates
+      Mean accuracy: 0.8429
+    WaveletWhittle: 8 estimates
+      Mean accuracy: 0.8613
+    GPH: 5 estimates
+      Mean accuracy: 0.8966
+    DFA: 6 estimates
+      Mean accuracy: 0.8583
+    Whittle: 2 estimates
+      Mean accuracy: 0.8689
+
+BIOMEDICAL:
+  Synthetic datasets: 29
+  Ground truth H values: [np.float64(0.8)]
+    DFA: 7 estimates
+      Mean accuracy: 0.8876
+    RS: 5 estimates
+      Mean accuracy: 0.8799
+    Whittle: 7 estimates
+      Mean accuracy: 0.8552
+    WaveletWhittle: 7 estimates
+      Mean accuracy: 0.9713
+    GPH: 4 estimates
+      Mean accuracy: 0.9644
+    Higuchi: 5 estimates
+      Mean accuracy: 0.9132
+
+CLIMATE:
+  Synthetic datasets: 36
+  Ground truth H values: [np.float64(0.9)]
+    GPH: 7 estimates
+      Mean accuracy: 0.8781
+    RS: 7 estimates
+      Mean accuracy: 0.8644
+    Whittle: 8 estimates
+      Mean accuracy: 0.8846
+    Higuchi: 8 estimates
+      Mean accuracy: 0.8627
+    WaveletWhittle: 7 estimates
+      Mean accuracy: 0.8148
+    DFA: 8 estimates
+      Mean accuracy: 0.9108
+
+
+UNCERTAINTY ANALYSIS:
+----------------------------------------
+Synthetic Data Relative Errors:
+  DFA: Mean=0.1799, Std=0.1519
+  Higuchi: Mean=0.2077, Std=0.1290
+  Whittle: Mean=0.1771, Std=0.1493
+  WaveletWhittle: Mean=0.2106, Std=0.1788
+  GPH: Mean=0.1122, Std=0.0818
+  RS: Mean=0.1929, Std=0.1466
+
+Estimator Agreement on Realistic Data:
+  DFA: Mean=-0.0847, Std=0.6475
+  GPH: Mean=0.3336, Std=0.4683
+  Higuchi: Mean=0.1349, Std=0.4853
+  RS: Mean=0.3611, Std=0.5360
+  Whittle: Mean=0.2376, Std=0.4272
+  WaveletWhittle: Mean=-0.1681, Std=0.4004
+
+
+RECOMMENDATIONS:
+----------------------------------------
+Best Performing Estimators (by accuracy):
+  GPH: 0.8878
+  Whittle: 0.8229
+  DFA: 0.8201
+
+Most Consistent Estimators (by agreement):
+  RS: 0.3611
+  GPH: 0.3336
+  Whittle: 0.2376
+
+Best Performing Domains:
+  biomedical: 0.9086
+  climate: 0.8692
+  financial: 0.8458

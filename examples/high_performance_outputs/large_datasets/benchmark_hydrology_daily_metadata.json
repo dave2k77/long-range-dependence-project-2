@@ -1,0 +1,14 @@
+{
+  "specification": {
+    "n_points": 3650,
+    "hurst_exponent": 0.8,
+    "domain_type": "hydrology",
+    "confound_strength": 0.2,
+    "noise_level": 0.1
+  },
+  "generated_data": {
+    "data_length": 3650,
+    "filepath": "high_performance_outputs\\large_datasets\\benchmark_hydrology_daily.npy",
+    "file_size_mb": 0.0279693603515625
+  }
+}

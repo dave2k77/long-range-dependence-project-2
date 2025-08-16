@@ -1,0 +1,272 @@
+{
+  "eeg_resting": {
+    "data_length": 5000,
+    "hurst_exponent": 0.6,
+    "domain_type": "eeg",
+    "confounds_applied": [
+      "baseline_drift",
+      "artifacts",
+      "noise"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:09",
+      "base_data_properties": {
+        "mean": 0.05334282248623242,
+        "std": 1.5086042996271296,
+        "min": -4.136666598466801,
+        "max": 4.605932419834879,
+        "skewness": 0.03153902225275621,
+        "kurtosis": -0.48900263514273146
+      },
+      "final_data_properties": {
+        "mean": 0.13772217343563012,
+        "std": 1.4802040916572987,
+        "min": -4.06507715743079,
+        "max": 4.46072294087089,
+        "skewness": -0.0037893828159701673,
+        "kurtosis": -0.511231258061259
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.6,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "eeg_active": {
+    "data_length": 5000,
+    "hurst_exponent": 0.4,
+    "domain_type": "eeg",
+    "confounds_applied": [
+      "baseline_drift",
+      "artifacts",
+      "noise"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": 0.00454484024857602,
+        "std": 1.4952636814071185,
+        "min": -4.251662290026961,
+        "max": 4.572425047320447,
+        "skewness": -0.02647778888227742,
+        "kurtosis": -0.3950855022659123
+      },
+      "final_data_properties": {
+        "mean": 0.2198624966995474,
+        "std": 1.3829455789837897,
+        "min": -3.569951096705829,
+        "max": 4.904592496647548,
+        "skewness": 0.11739922454961531,
+        "kurtosis": -0.4534918854257337
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.4,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": false
+      }
+    }
+  },
+  "hydrology_daily": {
+    "data_length": 3650,
+    "hurst_exponent": 0.8,
+    "domain_type": "hydrology",
+    "confounds_applied": [
+      "seasonality",
+      "trend_changes",
+      "heavy_tails"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": 9.344123648352003e-17,
+        "std": 1.0554491267612227,
+        "min": -1.8892548118225045,
+        "max": 1.8347469587335494,
+        "skewness": -0.14699075178092122,
+        "kurtosis": -1.2128485559973254
+      },
+      "final_data_properties": {
+        "mean": -71.68752470751947,
+        "std": 46.5110055374636,
+        "min": -143.81776945841546,
+        "max": 1.5809650592833555,
+        "skewness": 0.007998683623928755,
+        "kurtosis": -1.309856322013233
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.8,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "climate_monthly": {
+    "data_length": 1200,
+    "hurst_exponent": 0.7,
+    "domain_type": "climate",
+    "confounds_applied": [
+      "seasonality",
+      "trend_changes",
+      "heavy_tails"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": -1.4210854715202004e-16,
+        "std": 1.060659481764953,
+        "min": -2.1046520762608085,
+        "max": 1.7713062826295594,
+        "skewness": -0.16382026407908884,
+        "kurtosis": -1.1246677901203126
+      },
+      "final_data_properties": {
+        "mean": -47.9458782837923,
+        "std": 49.377735360906705,
+        "min": -152.23865732667895,
+        "max": 1.6233755938661951,
+        "skewness": -0.6237403251534839,
+        "kurtosis": -1.038175818682221
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.7,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "financial_daily": {
+    "data_length": 2520,
+    "hurst_exponent": 0.55,
+    "domain_type": "financial",
+    "confounds_applied": [
+      "volatility_clustering",
+      "regime_changes",
+      "jumps"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": 4.5113824492704774e-17,
+        "std": 1.0,
+        "min": -0.5203346429902705,
+        "max": 3.492234646180965,
+        "skewness": 2.215743246527263,
+        "kurtosis": 3.7855191877905474
+      },
+      "final_data_properties": {
+        "mean": -0.20418915897912782,
+        "std": 1.4557221698935172,
+        "min": -1.143756892375544,
+        "max": 5.957785045320195,
+        "skewness": 2.7899425192649625,
+        "kurtosis": 6.999799515671791
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.55,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "financial_high_freq": {
+    "data_length": 100000,
+    "hurst_exponent": 0.52,
+    "domain_type": "financial",
+    "confounds_applied": [
+      "volatility_clustering",
+      "regime_changes",
+      "jumps"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": -5.2295945351943375e-17,
+        "std": 0.9999999999999998,
+        "min": -0.1605167469661954,
+        "max": 10.088767363104871,
+        "skewness": 7.434355383502698,
+        "kurtosis": 58.26957917513656
+      },
+      "final_data_properties": {
+        "mean": -1.4380738208307908,
+        "std": 15.83363213375997,
+        "min": -7.475544854501857,
+        "max": 196.22048130812755,
+        "skewness": 8.903631425649856,
+        "kurtosis": 87.60445320409556
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.52,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "arfima_stationary": {
+    "data_length": 2000,
+    "hurst_exponent": 0.6,
+    "domain_type": "general",
+    "confounds_applied": [
+      "non_stationarity",
+      "heavy_tails"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": 0.0,
+        "std": 0.9999999999999999,
+        "min": -4.206530265064542,
+        "max": 5.380396004815076,
+        "skewness": 0.3799175964972708,
+        "kurtosis": 3.542484032737133
+      },
+      "final_data_properties": {
+        "mean": 0.0444067221954854,
+        "std": 0.898018520867228,
+        "min": -3.7013514290132012,
+        "max": 4.932074377519835,
+        "skewness": 0.2735957263854979,
+        "kurtosis": 3.4106022579348787
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.6,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  },
+  "arfima_nonstationary": {
+    "data_length": 2000,
+    "hurst_exponent": 0.8,
+    "domain_type": "general",
+    "confounds_applied": [
+      "non_stationarity",
+      "heavy_tails"
+    ],
+    "metadata": {
+      "generation_timestamp": "2025-08-16T16:56:10",
+      "base_data_properties": {
+        "mean": 1.5987211554602253e-17,
+        "std": 0.9999999999999998,
+        "min": -4.282304097104774,
+        "max": 3.840866942932708,
+        "skewness": -0.05244894156136338,
+        "kurtosis": 2.6580933904447175
+      },
+      "final_data_properties": {
+        "mean": 0.08079940875984727,
+        "std": 0.8181919778219483,
+        "min": -3.8139047981842222,
+        "max": 3.3543994291054196,
+        "skewness": -0.17392450123542744,
+        "kurtosis": 2.8754656283320372
+      },
+      "theoretical_properties": {
+        "hurst_exponent": 0.8,
+        "alpha_stable_alpha": 2.0,
+        "expected_lrd": true
+      }
+    }
+  }
+}

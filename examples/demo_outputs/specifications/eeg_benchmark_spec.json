@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "name": "Synthetic EEG Benchmark Dataset",
+    "description": "High-quality synthetic EEG data for LRD estimator benchmarking",
+    "author": "Demo User",
+    "contact": "demo@example.com",
+    "creation_date": "2025-08-16T17:56:09.989415",
+    "version": "1.0.0",
+    "license": "MIT",
+    "citation": "Demo Dataset for LRD Analysis",
+    "keywords": [
+      "EEG",
+      "synthetic",
+      "long-range dependence",
+      "benchmark"
+    ],
+    "references": [
+      "Demo Reference 1",
+      "Demo Reference 2"
+    ]
+  },
+  "properties": {
+    "n_points": 5000,
+    "n_variables": 1,
+    "sampling_frequency": 100.0,
+    "time_unit": "seconds",
+    "spatial_dimensions": null,
+    "missing_values": false,
+    "outliers": true,
+    "mean": 0.0,
+    "std": 1.0,
+    "min_val": null,
+    "max_val": null,
+    "skewness": null,
+    "kurtosis": null,
+    "hurst_exponent": 0.7,
+    "alpha_stable_alpha": null,
+    "is_stationary": false,
+    "has_seasonality": false,
+    "has_trends": true
+  },
+  "confounds": {
+    "non_stationarity": true,
+    "heavy_tails": false,
+    "baseline_drift": true,
+    "artifacts": true,
+    "seasonality": false,
+    "trend_changes": true,
+    "volatility_clustering": false,
+    "regime_changes": false,
+    "jumps": false,
+    "measurement_noise": true,
+    "missing_data": false,
+    "outliers": true,
+    "confound_details": {
+      "baseline_drift": "Slow linear trend",
+      "artifacts": "Random spikes with 1% probability",
+      "measurement_noise": "Gaussian noise with 5% amplitude"
+    }
+  },
+  "benchmark_protocol": {
+    "name": "EEG LRD Estimator Benchmark",
+    "description": "Comprehensive evaluation of LRD estimators on synthetic EEG data",
+    "estimators_to_test": [
+      "DFA",
+      "GPH",
+      "Higuchi",
+      "RS",
+      "Wavelet"
+    ],
+    "performance_metrics": [
+      "RMSE",
+      "MAE",
+      "Bias",
+      "Variance"
+    ],
+    "validation_methods": [
+      "Cross-validation",
+      "Bootstrap",
+      "Monte Carlo"
+    ],
+    "cross_validation_folds": 5,
+    "bootstrap_samples": 1000,
+    "confidence_level": 0.95,
+    "custom_parameters": {}
+  },
+  "data_path": null,
+  "data_format": "DatasetFormat.NUMPY",
+  "data_hash": null,
+  "validation_status": "validated",
+  "validation_notes": []
+}

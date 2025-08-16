@@ -1,0 +1,14 @@
+{
+  "specification": {
+    "n_points": 2000,
+    "hurst_exponent": 0.6,
+    "domain_type": "general",
+    "confound_strength": 0.1,
+    "noise_level": 0.05
+  },
+  "generated_data": {
+    "data_length": 2000,
+    "filepath": "high_performance_outputs\\large_datasets\\benchmark_arfima_stationary.npy",
+    "file_size_mb": 0.015380859375
+  }
+}

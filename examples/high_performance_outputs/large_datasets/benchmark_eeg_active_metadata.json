@@ -1,0 +1,14 @@
+{
+  "specification": {
+    "n_points": 5000,
+    "hurst_exponent": 0.4,
+    "domain_type": "eeg",
+    "confound_strength": 0.25,
+    "noise_level": 0.05
+  },
+  "generated_data": {
+    "data_length": 5000,
+    "filepath": "high_performance_outputs\\large_datasets\\benchmark_eeg_active.npy",
+    "file_size_mb": 0.03826904296875
+  }
+}

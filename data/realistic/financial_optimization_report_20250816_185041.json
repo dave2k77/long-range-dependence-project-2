@@ -1,0 +1,354 @@
+{
+  "optimization_summary": {
+    "total_iterations": 16,
+    "best_score": 0.7286720127352035,
+    "best_parameters": {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.7286720127352035,
+      "quality_level": "good",
+      "best_metrics": [
+        "moment_preservation",
+        "trend_preservation",
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.187098"
+    },
+    "average_score": 0.6696188374046279,
+    "score_improvement": 0.10531284946871922
+  },
+  "quality_distribution": {
+    "excellent": 0,
+    "good": 3,
+    "acceptable": 13,
+    "poor": 0
+  },
+  "parameter_analysis": {
+    "hurst_range": [
+      0.65,
+      0.65
+    ],
+    "noise_range": [
+      0.1,
+      0.1
+    ],
+    "confound_range": [
+      0.4,
+      0.4
+    ]
+  },
+  "optimization_history": [
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.7286720127352035,
+      "quality_level": "good",
+      "best_metrics": [
+        "moment_preservation",
+        "trend_preservation",
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.187098"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6418618237844514,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.203019"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6316975982141473,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "moment_preservation",
+        "seasonality_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.211355"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6404074589689706,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.223845"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6523273964898474,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.232562"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6834023333378094,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "trend_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.241527"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6462033283179555,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "spectral_properties",
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.250276"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6840944389319328,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "trend_preservation",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.260297"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6700442880141922,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "spectral_properties",
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.270385"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.7120440777834798,
+      "quality_level": "good",
+      "best_metrics": [
+        "moment_preservation",
+        "seasonality_preservation",
+        "trend_preservation"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.281035"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6969535517369675,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "spectral_properties",
+        "volatility_clustering"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.290490"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6233591632664843,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.299354"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.654807164823042,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "trend_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.306988"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6726998886840173,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "trend_preservation"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.317890"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.6524939433345496,
+      "quality_level": "acceptable",
+      "best_metrics": [
+        "seasonality_preservation",
+        "trend_preservation",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching",
+        "scaling_behavior"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.329712"
+    },
+    {
+      "parameters": {
+        "hurst_exponent": 0.65,
+        "noise_level": 0.1,
+        "confound_strength": 0.4,
+        "n_points": 168
+      },
+      "quality_score": 0.7228329300509965,
+      "quality_level": "good",
+      "best_metrics": [
+        "scaling_behavior",
+        "spectral_properties"
+      ],
+      "weak_metrics": [
+        "quantile_matching"
+      ],
+      "evaluation_date": "2025-08-16T18:50:40.343307"
+    }
+  ]
+}

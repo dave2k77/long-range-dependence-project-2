@@ -1,0 +1,102 @@
+{
+  "download_date": "2025-08-16T18:24:55.546564",
+  "total_datasets": 5,
+  "datasets": [
+    {
+      "name": "Daily Temperature Data",
+      "description": "Synthetic daily temperature data for 50 years",
+      "source": "Generated for demonstration",
+      "n_points": 18250,
+      "time_period": "50 years",
+      "units": "degrees Celsius",
+      "domain": "climate",
+      "expected_lrd": true,
+      "notes": "Shows seasonal patterns, climate trend, and daily weather variations",
+      "file_size_mb": 0.14,
+      "data_stats": {
+        "mean": 20.53656778361243,
+        "std": 11.861879486602845,
+        "min": -16.275087229856776,
+        "max": 54.48192139856155,
+        "n_points": 18250
+      }
+    },
+    {
+      "name": "Dow Jones Industrial Average (Monthly)",
+      "description": "Monthly average DJIA values from 2010-2023",
+      "source": "Generated for demonstration (based on historical patterns)",
+      "n_points": 168,
+      "time_period": "2010-2023",
+      "units": "points",
+      "domain": "financial",
+      "expected_lrd": true,
+      "notes": "Shows financial market trends and volatility clustering",
+      "file_size_mb": 0.0,
+      "data_stats": {
+        "mean": 18359.879845645588,
+        "std": 5218.746302703613,
+        "min": 10099.342830602247,
+        "max": 28185.808990861,
+        "n_points": 168
+      }
+    },
+    {
+      "name": "Sample EEG Data",
+      "description": "Synthetic EEG data with realistic brain wave patterns",
+      "source": "Generated for demonstration",
+      "n_points": 10000,
+      "time_period": "10 seconds",
+      "sampling_rate": "1000 Hz",
+      "units": "microvolts",
+      "domain": "biomedical",
+      "expected_lrd": true,
+      "notes": "Contains alpha, beta, theta waves with artifacts and drift",
+      "file_size_mb": 0.08,
+      "data_stats": {
+        "mean": 0.47399282979704693,
+        "std": 20.224805811920785,
+        "min": -44.89002683709797,
+        "max": 70.95620552983134,
+        "n_points": 10000
+      }
+    },
+    {
+      "name": "Nile River Annual Flow",
+      "description": "Annual flow measurements of the Nile River from 1871-1970",
+      "source": "Hipel and McLeod (1994)",
+      "n_points": 100,
+      "time_period": "1871-1970",
+      "units": "cubic meters per second",
+      "domain": "hydrology",
+      "expected_lrd": true,
+      "notes": "Classic dataset for LRD analysis, shows strong long-range dependence",
+      "file_size_mb": 0.0,
+      "data_stats": {
+        "mean": 1141.69,
+        "std": 157.2284131446985,
+        "min": 813.0,
+        "max": 1370.0,
+        "n_points": 100
+      }
+    },
+    {
+      "name": "Synthetic Sunspot Activity",
+      "description": "Synthetic sunspot data with 11-year cycle and LRD properties",
+      "source": "Generated for demonstration",
+      "n_points": 300,
+      "time_period": "Synthetic",
+      "units": "sunspot number",
+      "domain": "astronomy/climate",
+      "expected_lrd": true,
+      "notes": "Synthetic data mimicking real sunspot patterns",
+      "file_size_mb": 0.0,
+      "data_stats": {
+        "mean": 37.451946632232506,
+        "std": 32.46973228842267,
+        "min": 0.0,
+        "max": 120.13275978562916,
+        "n_points": 300
+      }
+    }
+  ]
+}

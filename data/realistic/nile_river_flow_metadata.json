@@ -1,0 +1,11 @@
+{
+  "name": "Nile River Annual Flow",
+  "description": "Annual flow measurements of the Nile River from 1871-1970",
+  "source": "Hipel and McLeod (1994)",
+  "n_points": 100,
+  "time_period": "1871-1970",
+  "units": "cubic meters per second",
+  "domain": "hydrology",
+  "expected_lrd": true,
+  "notes": "Classic dataset for LRD analysis, shows strong long-range dependence"
+}

@@ -1,0 +1,14 @@
+{
+  "specification": {
+    "n_points": 1200,
+    "hurst_exponent": 0.7,
+    "domain_type": "climate",
+    "confound_strength": 0.15,
+    "noise_level": 0.08
+  },
+  "generated_data": {
+    "data_length": 1200,
+    "filepath": "high_performance_outputs\\large_datasets\\benchmark_climate_monthly.npy",
+    "file_size_mb": 0.00927734375
+  }
+}

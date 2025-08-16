@@ -1,0 +1,11 @@
+{
+  "name": "Dow Jones Industrial Average (Monthly)",
+  "description": "Monthly average DJIA values from 2010-2023",
+  "source": "Generated for demonstration (based on historical patterns)",
+  "n_points": 168,
+  "time_period": "2010-2023",
+  "units": "points",
+  "domain": "financial",
+  "expected_lrd": true,
+  "notes": "Shows financial market trends and volatility clustering"
+}

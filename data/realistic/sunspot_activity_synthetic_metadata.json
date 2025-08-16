@@ -1,0 +1,11 @@
+{
+  "name": "Synthetic Sunspot Activity",
+  "description": "Synthetic sunspot data with 11-year cycle and LRD properties",
+  "source": "Generated for demonstration",
+  "n_points": 300,
+  "time_period": "Synthetic",
+  "units": "sunspot number",
+  "domain": "astronomy/climate",
+  "expected_lrd": true,
+  "notes": "Synthetic data mimicking real sunspot patterns"
+}

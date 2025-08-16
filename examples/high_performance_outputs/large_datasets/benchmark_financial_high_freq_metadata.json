@@ -1,0 +1,14 @@
+{
+  "specification": {
+    "n_points": 100000,
+    "hurst_exponent": 0.52,
+    "domain_type": "financial",
+    "confound_strength": 0.4,
+    "noise_level": 0.02
+  },
+  "generated_data": {
+    "data_length": 100000,
+    "filepath": "high_performance_outputs\\large_datasets\\benchmark_financial_high_freq.npy",
+    "file_size_mb": 0.7630615234375
+  }
+}

@@ -1,0 +1,56 @@
+COMPREHENSIVE QUALITY-ENHANCED BENCHMARK REPORT
+============================================================
+
+Generated: 2025-08-16 19:37:47
+Total tests: 37
+Estimators available: False
+
+QUALITY EVALUATION SUMMARY:
+----------------------------------------
+              mean     std  count
+domain                           
+biomedical  0.7062  0.1115      9
+climate     0.7535  0.1025      9
+financial   0.6502  0.1544      9
+hydrology   0.8305  0.1420      9
+
+BEST PERFORMING DOMAINS BY QUALITY:
+----------------------------------------
+hydrology: 0.8305
+climate: 0.7535
+biomedical: 0.7062
+financial: 0.6502
+
+DATASET SUMMARY:
+----------------------------------------
+dataset_type  domain    
+realistic     biomedical    1
+              climate       2
+              financial     1
+              hydrology     1
+synthetic     biomedical    8
+              climate       8
+              financial     8
+              hydrology     8
+
+PERFORMANCE SUMMARY:
+----------------------------------------
+           evaluation_time         quality_score        
+                      mean     std          mean     std
+domain                                                  
+biomedical          0.0084  0.0017        0.7062  0.1115
+climate             0.0086  0.0031        0.7535  0.1025
+financial           0.0086  0.0019        0.6502  0.1544
+hydrology           0.0082  0.0015        0.8305  0.1420
+
+RECOMMENDATIONS:
+----------------------------------------
+Best quality domains:
+  hydrology: 0.8305
+  climate: 0.7535
+  biomedical: 0.7062
+
+Fastest evaluation domains:
+  hydrology: 0.0082s
+  biomedical: 0.0084s
+  climate: 0.0086s

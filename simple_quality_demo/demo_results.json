@@ -1,0 +1,138 @@
+{
+  "quality_gates": {
+    "submission_id": "demo_001",
+    "quality_score": 0.4495799218787231,
+    "quality_level": "acceptable",
+    "gate_passed": "False",
+    "gate_status": "FAILED",
+    "threshold": 0.5,
+    "timestamp": "2025-08-16T19:10:00.619281",
+    "detailed_metrics": {
+      "distribution_similarity": 0,
+      "moment_preservation": 1.0,
+      "spectral_properties": 0.0032503336435878174,
+      "temporal_properties": 0.9944192871425868,
+      "overall_score": 0.4495799218787231,
+      "quality_level": "acceptable"
+    }
+  },
+  "benchmarking": [
+    {
+      "dataset_size": 100,
+      "execution_time": 0.002052,
+      "quality_score": 0.2,
+      "quality_level": "poor",
+      "memory_usage_mb": 0.000762939453125
+    },
+    {
+      "dataset_size": 500,
+      "execution_time": 0.001916,
+      "quality_score": 0.4496155672779587,
+      "quality_level": "acceptable",
+      "memory_usage_mb": 0.003814697265625
+    },
+    {
+      "dataset_size": 1000,
+      "execution_time": 0.00208,
+      "quality_score": 0.4484924821422811,
+      "quality_level": "acceptable",
+      "memory_usage_mb": 0.00762939453125
+    }
+  ],
+  "monitoring": {
+    "results": [
+      {
+        "evaluation_id": 1,
+        "timestamp": "2025-08-16T19:10:00.631931",
+        "quality_score": 0.4653116180919431,
+        "quality_level": "acceptable",
+        "quality_factor": 0.6
+      },
+      {
+        "evaluation_id": 2,
+        "timestamp": "2025-08-16T19:10:00.634774",
+        "quality_score": 0.5690749345690272,
+        "quality_level": "acceptable",
+        "quality_factor": 0.7438276615812609
+      },
+      {
+        "evaluation_id": 3,
+        "timestamp": "2025-08-16T19:10:00.638633",
+        "quality_score": 0.44974381032944566,
+        "quality_level": "acceptable",
+        "quality_factor": 0.8524412954423689
+      },
+      {
+        "evaluation_id": 4,
+        "timestamp": "2025-08-16T19:10:00.642670",
+        "quality_score": 0.5832568041763129,
+        "quality_level": "acceptable",
+        "quality_factor": 0.8992484959812164
+      },
+      {
+        "evaluation_id": 5,
+        "timestamp": "2025-08-16T19:10:00.646062",
+        "quality_score": 0.44942834429561895,
+        "quality_level": "acceptable",
+        "quality_factor": 0.8727892280477045
+      },
+      {
+        "evaluation_id": 6,
+        "timestamp": "2025-08-16T19:10:00.648777",
+        "quality_score": 0.47892501829242995,
+        "quality_level": "acceptable",
+        "quality_factor": 0.7795416432311869
+      },
+      {
+        "evaluation_id": 7,
+        "timestamp": "2025-08-16T19:10:00.652094",
+        "quality_score": 0.4866173862091443,
+        "quality_level": "acceptable",
+        "quality_factor": 0.6423360024179602
+      },
+      {
+        "evaluation_id": 8,
+        "timestamp": "2025-08-16T19:10:00.655015",
+        "quality_score": 0.4488192535779063,
+        "quality_level": "acceptable",
+        "quality_factor": 0.49476503169311403
+      },
+      {
+        "evaluation_id": 9,
+        "timestamp": "2025-08-16T19:10:00.657808",
+        "quality_score": 0.44955741518400383,
+        "quality_level": "acceptable",
+        "quality_factor": 0.37295925140762154
+      },
+      {
+        "evaluation_id": 10,
+        "timestamp": "2025-08-16T19:10:00.660898",
+        "quality_score": 0.4497826860347329,
+        "quality_level": "acceptable",
+        "quality_factor": 0.3067409647004709
+      }
+    ],
+    "summary": {
+      "total_evaluations": 10,
+      "average_quality": 0.48305172707605654,
+      "quality_trend": "declining",
+      "recent_quality": 0.4497826860347329,
+      "quality_variability": 0.048400427964621746
+    }
+  },
+  "advanced_metrics": {
+    "hurst_exponent_consistency": {
+      "synthetic_hurst": 1.0,
+      "reference_hurst": 0.8848483483088053,
+      "difference": 0.11515165169119468,
+      "score": 0.8967390206376322
+    },
+    "power_law_scaling_consistency": {
+      "synthetic_slope": -2.296013299841856,
+      "reference_slope": -1.2966431464038803,
+      "difference": 0.9993701534379758,
+      "score": 0.500157511244464
+    },
+    "overall_advanced_score": 0.5236263474971956
+  }
+}

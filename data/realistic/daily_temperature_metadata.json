@@ -1,0 +1,11 @@
+{
+  "name": "Daily Temperature Data",
+  "description": "Synthetic daily temperature data for 50 years",
+  "source": "Generated for demonstration",
+  "n_points": 18250,
+  "time_period": "50 years",
+  "units": "degrees Celsius",
+  "domain": "climate",
+  "expected_lrd": true,
+  "notes": "Shows seasonal patterns, climate trend, and daily weather variations"
+}

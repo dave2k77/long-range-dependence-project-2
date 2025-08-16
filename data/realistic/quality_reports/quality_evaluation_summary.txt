@@ -1,0 +1,50 @@
+================================================================================
+SYNTHETIC DATA QUALITY EVALUATION SUMMARY REPORT
+================================================================================
+Generated: 2025-08-16 18:48:37
+Total Datasets Evaluated: 4
+
+OVERALL STATISTICS
+------------------------------
+Average Quality Score: 0.541
+Best Quality Score: 0.649
+Worst Quality Score: 0.437
+Quality Score Std Dev: 0.075
+
+QUALITY LEVEL DISTRIBUTION
+------------------------------
+Acceptable: 3 (75.0%)
+Poor: 1 (25.0%)
+
+INDIVIDUAL DATASET RESULTS
+------------------------------
+1. financial_high
+   Quality Score: 0.649
+   Quality Level: Acceptable
+   Report: financial_high_quality_report.txt
+
+2. hydrology_high
+   Quality Score: 0.541
+   Quality Level: Acceptable
+   Report: hydrology_high_quality_report.txt
+
+3. hydrology_medium
+   Quality Score: 0.537
+   Quality Level: Acceptable
+   Report: hydrology_medium_quality_report.txt
+
+4. white_noise_poor
+   Quality Score: 0.437
+   Quality Level: Poor
+   Report: white_noise_poor_quality_report.txt
+
+RECOMMENDATIONS
+------------------------------
+• Quality is acceptable but could be improved.
+• Focus on improving the lowest-scoring metrics.
+• Poor performing datasets requiring attention:
+  - white_noise_poor (score: 0.437)
+
+================================================================================
+End of Summary Report
+================================================================================

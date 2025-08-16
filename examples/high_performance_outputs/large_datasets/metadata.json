@@ -1,0 +1,62 @@
+{
+  "dataset_1": {
+    "hurst": 0.1,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.100_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_2": {
+    "hurst": 0.18888888888888888,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.189_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_3": {
+    "hurst": 0.2777777777777778,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.278_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_4": {
+    "hurst": 0.3666666666666667,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.367_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_5": {
+    "hurst": 0.4555555555555556,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.456_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_6": {
+    "hurst": 0.5444444444444445,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.544_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_7": {
+    "hurst": 0.6333333333333333,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.633_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_8": {
+    "hurst": 0.7222222222222222,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.722_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_9": {
+    "hurst": 0.8111111111111111,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.811_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  },
+  "dataset_10": {
+    "hurst": 0.9,
+    "filepath": "high_performance_outputs\\large_datasets\\large_dataset_H0.900_100000.npy",
+    "data_length": 100000,
+    "file_size_mb": 0.7630615234375
+  }
+}
