@@ -21,6 +21,7 @@ try:
     from .high_performance_gph import HighPerformanceGPHEstimator
     from .high_performance_wavelet_leaders import HighPerformanceWaveletLeadersEstimator
     from .high_performance_wavelet_whittle import HighPerformanceWaveletWhittleEstimator
+    from .high_performance_wavelet_log_variance import HighPerformanceWaveletLogVarianceEstimator
     HIGH_PERFORMANCE_AVAILABLE = True
 except ImportError:
     HIGH_PERFORMANCE_AVAILABLE = False
@@ -49,5 +50,6 @@ if HIGH_PERFORMANCE_AVAILABLE:
         "HighPerformancePeriodogramEstimator",
         "HighPerformanceGPHEstimator",
         "HighPerformanceWaveletLeadersEstimator",
-        "HighPerformanceWaveletWhittleEstimator"
+        "HighPerformanceWaveletWhittleEstimator",
+        "HighPerformanceWaveletLogVarianceEstimator"
     ])
