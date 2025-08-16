@@ -1,263 +1,105 @@
-# 🚀 Long-Range Dependence Analysis Framework
+# Long-Range Dependence Benchmarking Framework
 
-> **State-of-the-art framework for analyzing long-range dependence in time series data with 10 high-performance estimators**
+A comprehensive framework for benchmarking long-range dependence estimators with synthetic data generation and quality evaluation.
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![JAX](https://img.shields.io/badge/JAX-accelerated-orange.svg)](https://github.com/google/jax)
-[![NumPy](https://img.shields.io/badge/NumPy-optimized-green.svg)](https://numpy.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+## Features
 
-## 🎯 **What is Long-Range Dependence?**
+### Core Framework
+- **Long-Range Dependence Estimators**: Multiple estimators including DFA, GPH, Higuchi, Periodogram, R/S, Wavelet methods, and Whittle
+- **Synthetic Data Generation**: Configurable synthetic data with known Hurst exponents
+- **Performance Benchmarking**: Execution time and memory usage analysis
+- **Quality Evaluation**: TSGBench-inspired synthetic data quality assessment
 
-Long-range dependence (LRD) is a statistical property where observations that are far apart in time are still correlated. This phenomenon appears in:
+### Quality Evaluation System
+- **Quality Gates in Data Submission**: Automated quality checks during dataset submission
+- **Benchmarking Integration**: Quality metrics integrated with performance benchmarks
+- **Automated Quality Monitoring**: Real-time quality assessment with alerts and trend analysis
+- **Advanced Quality Metrics**: ML-based quality prediction and cross-dataset assessment
 
-- **Financial Markets**: Stock prices, volatility clustering
-- **Network Traffic**: Internet packet delays, congestion patterns  
-- **Climate Data**: Temperature variations, precipitation patterns
-- **Biomedical Signals**: Heart rate variability, brain activity
-- **Geophysical Data**: Earthquake patterns, seismic activity
+### Data Processing
+- **Data Preprocessing**: Normalization, detrending, and quality filtering
+- **Validation**: Comprehensive dataset and estimator validation
+- **Submission System**: Structured data and estimator submission pipeline
 
-## 🏆 **Framework Highlights**
+## Installation
 
-### **✨ 10 High-Performance Estimators**
-- **100% Reliability**: Smart fallback system ensures success
-- **JAX Acceleration**: GPU acceleration with automatic fallbacks
-- **Intelligent Caching**: Multi-level caching for performance
-- **Memory Optimization**: Efficient memory management and monitoring
-
-### **🚀 Performance Features**
-- **JAX Integration**: 2-10x speedup for compatible operations
-- **NumPy Fallbacks**: Robust implementations for maximum compatibility
-- **Vectorized Operations**: Optimized array operations
-- **Performance Monitoring**: Real-time tracking and optimization
-
-## 📊 **Complete Estimator Suite**
-
-### **🕒 Temporal Methods (4 Estimators)**
-1. **`HighPerformanceDFAEstimator`** - Detrended Fluctuation Analysis
-2. **`HighPerformanceMFDFAEstimator`** - Multifractal DFA  
-3. **`HighPerformanceRSEstimator`** - Rescaled Range Analysis
-4. **`HighPerformanceHiguchiEstimator`** - Higuchi method
-
-### **📈 Spectral Methods (3 Estimators)**
-5. **`HighPerformanceWhittleMLEEstimator`** - Whittle Maximum Likelihood
-6. **`HighPerformancePeriodogramEstimator`** - Periodogram-based analysis
-7. **`HighPerformanceGPHEstimator`** - Geweke-Porter-Hudak method
-
-### **🌊 Wavelet Methods (3 Estimators)**
-8. **`HighPerformanceWaveletLeadersEstimator`** - Wavelet leaders analysis
-9. **`HighPerformanceWaveletWhittleEstimator`** - Wavelet Whittle method
-10. **`HighPerformanceWaveletLogVarianceEstimator`** - Wavelet log-variance analysis ⭐ **NEW!**
-
-## 🚀 **Quick Start**
-
-### **Installation**
 ```bash
-git clone https://github.com/yourusername/long-range-dependence-project-2.git
-cd long-range-dependence-project-2
 pip install -r requirements.txt
 ```
 
-### **Basic Usage**
+## Quick Start
+
+### Basic Usage
+
 ```python
-import numpy as np
-from src.estimators import HighPerformanceDFAEstimator
+from src.benchmarking import PerformanceBenchmark
+from src.data_generation import SyntheticDataGenerator
 
-# Generate sample data
-data = np.random.randn(1000)
+# Generate synthetic data
+generator = SyntheticDataGenerator()
+data = generator.generate_data(specification)
 
-# Create estimator
-estimator = HighPerformanceDFAEstimator(
-    use_jax=True,           # Enable JAX acceleration
-    enable_caching=True,     # Enable result caching
-    vectorized=True          # Use vectorized operations
+# Run benchmarks
+benchmark = PerformanceBenchmark()
+results = benchmark.run_comprehensive_benchmark(data)
+```
+
+### Quality Evaluation
+
+```python
+from src.validation import SyntheticDataQualityEvaluator
+
+# Evaluate synthetic data quality
+evaluator = SyntheticDataQualityEvaluator()
+quality_result = evaluator.evaluate_quality(
+    synthetic_data=synthetic_data,
+    reference_data=reference_data,
+    domain="financial"
 )
-
-# Estimate long-range dependence
-results = estimator.estimate(data)
-
-print(f"Hurst Exponent: {results['hurst_exponent']:.4f}")
-print(f"Execution Time: {results['performance']['execution_time']:.4f}s")
 ```
 
-### **Advanced Usage with Wavelet Log-Variance**
-```python
-from src.estimators import HighPerformanceWaveletLogVarianceEstimator
+### Quality Gates
 
-# Create wavelet log-variance estimator
-wavelet_estimator = HighPerformanceWaveletLogVarianceEstimator(
-    wavelet='db4',          # Daubechies 4 wavelet
-    num_scales=20,          # Number of wavelet scales
-    use_jax=True,           # JAX acceleration
-    enable_caching=True      # Intelligent caching
+```python
+from src.data_submission import DatasetSubmission
+
+# Submit dataset with automatic quality checks
+submission = DatasetSubmission()
+result = submission.submit_synthetic_dataset(
+    data=data,
+    specification=spec,
+    metadata=metadata
 )
-
-# Estimate using wavelet method
-wavelet_results = wavelet_estimator.estimate(data)
-
-print(f"Wavelet Hurst Exponent: {wavelet_results['hurst_exponent']:.4f}")
-print(f"Alpha Parameter: {wavelet_results['alpha']:.4f}")
-print(f"Confidence Interval: {wavelet_results['confidence_interval']}")
 ```
 
-## 🔧 **Advanced Features**
+## Documentation
 
-### **Smart Fallback System**
-```python
-# Automatic fallback when JAX encounters issues
-estimator = HighPerformanceMFDFAEstimator(
-    use_jax=True,           # Try JAX first
-    enable_caching=True      # Cache results for efficiency
-)
+- [API Reference](docs/API_REFERENCE.md)
+- [Synthetic Data Quality Evaluation](SYNTHETIC_DATA_QUALITY_EVALUATION_SUMMARY.md)
+- [Final Implementation Summary](FINAL_IMPLEMENTATION_SUMMARY.md)
+- [Project Status](PROJECT_STATUS_FINAL.md)
 
-# If JAX fails, automatically uses NumPy fallback
-results = estimator.estimate(data)
-print(f"JAX Used: {results['performance']['jax_usage']}")
-print(f"Fallback Used: {results['performance']['fallback_usage']}")
-```
+## Examples
 
-### **Performance Monitoring**
-```python
-# Get comprehensive performance summary
-perf_summary = estimator.get_performance_summary()
-print(f"Execution Time: {perf_summary['execution_time']:.4f}s")
-print(f"Memory Usage: {perf_summary['memory_usage']} bytes")
-print(f"Cache Hit Rate: {perf_summary['cache_performance']['hit_rate']:.2%}")
-```
+See the `examples/` directory for comprehensive demonstrations:
+- `synthetic_data_quality_demo.py`: Quality evaluation system demo
+- `simple_quality_demo.py`: Simplified quality system concepts demo
+- `comprehensive_demo.py`: Full framework demonstration
 
-### **Caching Statistics**
-```python
-# Monitor caching performance
-cache_stats = estimator.get_cache_stats()
-print(f"Cache Hits: {cache_stats['cache_hits']}")
-print(f"Cache Misses: {cache_stats['cache_misses']}")
-print(f"Hit Rate: {cache_stats['hit_rate']:.2%}")
-```
+## Testing
 
-## 📈 **Performance Benchmarks**
-
-### **Speed Improvements**
-| Estimator | JAX Speedup | Fallback Reliability | Memory Efficiency |
-|-----------|-------------|---------------------|-------------------|
-| DFA | 3.2x | 100% | ⭐⭐⭐⭐⭐ |
-| MFDFA | 2.8x | 100% | ⭐⭐⭐⭐⭐ |
-| R/S | 2.5x | 100% | ⭐⭐⭐⭐⭐ |
-| Higuchi | 2.1x | 100% | ⭐⭐⭐⭐⭐ |
-| Whittle MLE | 4.1x | 100% | ⭐⭐⭐⭐⭐ |
-| Periodogram | 3.7x | 100% | ⭐⭐⭐⭐⭐ |
-| GPH | 3.3x | 100% | ⭐⭐⭐⭐⭐ |
-| Wavelet Leaders | 2.9x | 100% | ⭐⭐⭐⭐⭐ |
-| Wavelet Whittle | 3.5x | 100% | ⭐⭐⭐⭐⭐ |
-| Wavelet Log-Variance | 3.8x | 100% | ⭐⭐⭐⭐⭐ ⭐ **NEW!** |
-
-### **Memory Usage**
-- **Efficient**: 20-50MB typical usage
-- **Scalable**: Linear scaling with data size
-- **Optimized**: Automatic garbage collection and memory pooling
-
-## 🏗️ **Architecture**
-
-### **Smart Design Principles**
-```
-High-Performance Estimator
-├── JAX Acceleration (Primary)
-│   ├── GPU acceleration
-│   ├── Automatic differentiation
-│   └── Vectorized operations
-└── NumPy Fallback (Reliability)
-    ├── Robust implementations
-    ├── Optimized operations
-    └── Graceful degradation
-```
-
-### **Performance Features**
-- **JAX Integration**: GPU acceleration and automatic differentiation
-- **NumPy Fallbacks**: Robust fallbacks for maximum compatibility
-- **Vectorized Operations**: Optimized array operations
-- **Intelligent Caching**: Multi-level caching system
-- **Memory Management**: Efficient memory pooling and monitoring
-
-## 📚 **Documentation**
-
-### **Comprehensive Guides**
-- **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
-- **[Performance Analysis](PERFORMANCE_BENCHMARK_ANALYSIS.md)** - Benchmark results
-- **[Project Status](PROJECT_STATUS_FINAL.md)** - Complete project overview
-- **[Examples](examples/comprehensive_demo.py)** - Practical usage examples
-
-### **Quick References**
-- **Installation Guide**: See [Installation](#installation) above
-- **Basic Usage**: See [Quick Start](#-quick-start) above
-- **Advanced Features**: See [Advanced Features](#-advanced-features) above
-- **Performance Tips**: See [Performance Benchmarks](#-performance-benchmarks) above
-
-## 🧪 **Testing & Validation**
-
-### **Comprehensive Test Suite**
 ```bash
-# Run all tests
-python -m pytest tests/
-
-# Run specific estimator tests
-python test_all_estimators.py
-python test_wavelet_log_variance.py
-
-# Run performance benchmarks
-python run_benchmarks.py
+python run_tests.py
 ```
 
-### **Validation Results**
-- **100% Success Rate**: All estimators tested and working
-- **Performance Validated**: Benchmarks confirm speed improvements
-- **Memory Optimized**: Efficient memory usage confirmed
-- **Fallback System**: Robust error handling validated
+## Contributing
 
-## 🔮 **Future Development**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
-### **Planned Enhancements**
-- **Additional Wavelet Methods**: More wavelet-based estimators
-- **Machine Learning Integration**: ML-based LRD estimation
-- **Real-time Analysis**: Streaming data analysis capabilities
-- **Cloud Integration**: Cloud-based processing and storage
+## License
 
-### **Research Extensions**
-- **Time-Varying Analysis**: Non-stationary LRD analysis
-- **Spatial Analysis**: Spatial long-range dependence
-- **Multivariate Analysis**: Multi-dimensional time series
-- **Advanced Visualization**: Interactive plotting tools
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### **Development Setup**
-```bash
-git clone https://github.com/yourusername/long-range-dependence-project-2.git
-cd long-range-dependence-project-2
-pip install -r requirements-dev.txt
-pre-commit install
-```
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 **Acknowledgments**
-
-- **JAX Team**: For the amazing acceleration framework
-- **NumPy Community**: For the robust numerical computing foundation
-- **Scientific Community**: For the theoretical foundations of LRD analysis
-
-## 📞 **Support**
-
-- **Documentation**: [docs/](docs/)
-- **Examples**: [examples/](examples/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/long-range-dependence-project-2/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/long-range-dependence-project-2/discussions)
-
----
-
-**🚀 Ready for Production Use**  
-**📊 10 High-Performance Estimators**  
-**⚡ JAX Acceleration + Robust Fallbacks**  
-**🎯 100% Reliability Guaranteed**
+This project is licensed under the MIT License.

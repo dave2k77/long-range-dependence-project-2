@@ -22,11 +22,22 @@ from src.estimators.high_performance import HighPerformanceMFDFAEstimator
 from src.estimators.high_performance_dfa import HighPerformanceDFAEstimator
 from src.estimators.base import BaseEstimator
 
+# Import quality evaluation system
+try:
+    from ..validation.synthetic_data_quality import (
+        SyntheticDataQualityEvaluator, create_domain_specific_evaluator
+    )
+except ImportError:
+    # Fallback to absolute imports for demo purposes
+    from src.validation.synthetic_data_quality import (
+        SyntheticDataQualityEvaluator, create_domain_specific_evaluator
+    )
+
 logger = logging.getLogger(__name__)
 
 @dataclass
 class BenchmarkResult:
-    """Container for benchmark results."""
+    """Container for benchmark results with quality metrics."""
     estimator_name: str
     dataset_size: int
     execution_time: float
@@ -35,6 +46,12 @@ class BenchmarkResult:
     success: bool
     error_message: Optional[str] = None
     additional_metrics: Optional[Dict[str, Any]] = None
+    
+    # Quality evaluation results
+    quality_score: Optional[float] = None
+    quality_level: Optional[str] = None
+    quality_metrics: Optional[Dict[str, float]] = None
+    quality_recommendations: Optional[List[str]] = None
 
 class PerformanceBenchmarker:
     """
@@ -106,19 +123,63 @@ class PerformanceBenchmarker:
             
         return peak_mb, current_mb
     
-    def benchmark_estimator(self, estimator_class: type, estimator_name: str,
-                           data: np.ndarray, **kwargs) -> BenchmarkResult:
+    def _evaluate_data_quality(self, synthetic_data: np.ndarray, 
+                              reference_data: np.ndarray, domain: str):
         """
-        Benchmark a single estimator on given data.
+        Evaluate synthetic data quality using our quality evaluation system.
+        
+        Parameters:
+        -----------
+        synthetic_data : np.ndarray
+            Synthetic data to evaluate
+        reference_data : np.ndarray
+            Reference data for comparison
+        domain : str
+            Data domain for domain-specific evaluation
+            
+        Returns:
+        --------
+        QualityEvaluationResult
+            Quality evaluation results
+        """
+        try:
+            # Create appropriate evaluator
+            if domain in ['hydrology', 'financial', 'biomedical', 'climate']:
+                evaluator = create_domain_specific_evaluator(domain)
+            else:
+                evaluator = SyntheticDataQualityEvaluator()
+            
+            # Run quality evaluation
+            quality_result = evaluator.evaluate_quality(
+                synthetic_data=synthetic_data,
+                reference_data=reference_data,
+                reference_metadata={"domain": domain, "source": "benchmark_reference"},
+                domain=domain,
+                normalize_for_comparison=True
+            )
+            
+            return quality_result
+            
+        except Exception as e:
+            logger.error(f"Quality evaluation failed: {e}")
+            raise
+    
+    def benchmark_estimator(self, estimator_class: type, estimator_name: str,
+                           data: np.ndarray, reference_data: Optional[np.ndarray] = None,
+                           domain: str = "general", **kwargs) -> BenchmarkResult:
+        """
+        Benchmark a single estimator on given data with quality evaluation.
         
         Args:
             estimator_class: Class of the estimator to benchmark
             estimator_name: Name identifier for the estimator
             data: Input data for estimation
+            reference_data: Reference data for quality evaluation
+            domain: Data domain for domain-specific quality evaluation
             **kwargs: Additional arguments for estimator initialization
             
         Returns:
-            BenchmarkResult with performance metrics
+            BenchmarkResult with performance and quality metrics
         """
         dataset_size = len(data)
         
@@ -150,6 +211,29 @@ class PerformanceBenchmarker:
             if hasattr(estimator, 'get_memory_usage'):
                 additional_metrics['estimator_memory_usage'] = estimator.get_memory_usage()
             
+            # QUALITY EVALUATION: Evaluate synthetic data quality if reference data provided
+            quality_score = None
+            quality_level = None
+            quality_metrics = None
+            quality_recommendations = None
+            
+            if reference_data is not None:
+                try:
+                    quality_result = self._evaluate_data_quality(data, reference_data, domain)
+                    quality_score = quality_result.overall_score
+                    quality_level = quality_result.quality_level
+                    quality_metrics = {m.metric_name: m.score for m in quality_result.metrics}
+                    quality_recommendations = quality_result.recommendations
+                    
+                    # Add quality metrics to additional metrics
+                    additional_metrics['quality_score'] = quality_score
+                    additional_metrics['quality_level'] = quality_level
+                    additional_metrics['quality_metrics'] = quality_metrics
+                    
+                except Exception as e:
+                    logger.warning(f"Quality evaluation failed for {estimator_name}: {e}")
+                    additional_metrics['quality_evaluation_error'] = str(e)
+            
             return BenchmarkResult(
                 estimator_name=estimator_name,
                 dataset_size=dataset_size,
@@ -157,7 +241,11 @@ class PerformanceBenchmarker:
                 memory_peak=memory_peak,
                 memory_final=memory_final,
                 success=True,
-                additional_metrics=additional_metrics
+                additional_metrics=additional_metrics,
+                quality_score=quality_score,
+                quality_level=quality_level,
+                quality_metrics=quality_metrics,
+                quality_recommendations=quality_recommendations
             )
             
         except Exception as e:
@@ -173,16 +261,21 @@ class PerformanceBenchmarker:
             )
     
     def run_comprehensive_benchmark(self, dataset_sizes: List[int] = None,
-                                   num_runs: int = 3) -> pd.DataFrame:
+                                   num_runs: int = 3, include_quality: bool = True,
+                                   reference_data: Optional[np.ndarray] = None,
+                                   domain: str = "general") -> pd.DataFrame:
         """
         Run comprehensive benchmarking across multiple estimators and dataset sizes.
         
         Args:
             dataset_sizes: List of dataset sizes to test
             num_runs: Number of runs per configuration for averaging
+            include_quality: Whether to include quality evaluation
+            reference_data: Reference data for quality evaluation
+            domain: Data domain for quality evaluation
             
         Returns:
-            DataFrame with benchmark results
+            DataFrame with benchmark results including quality metrics
         """
         if dataset_sizes is None:
             dataset_sizes = [100, 500, 1000, 2000, 5000]
@@ -195,6 +288,8 @@ class PerformanceBenchmarker:
         logger.info(f"Starting comprehensive benchmark with {len(estimators)} estimators")
         logger.info(f"Testing dataset sizes: {dataset_sizes}")
         logger.info(f"Running {num_runs} iterations per configuration")
+        if include_quality:
+            logger.info(f"Including quality evaluation for domain: {domain}")
         
         all_results = []
         
@@ -208,12 +303,21 @@ class PerformanceBenchmarker:
                     # Generate fresh data for each run
                     data = self.generate_synthetic_data(size)
                     
-                    # Run benchmark
-                    result = self.benchmark_estimator(
-                        estimator_class, 
-                        estimator_name, 
-                        data
-                    )
+                    # Run benchmark with quality evaluation if requested
+                    if include_quality and reference_data is not None:
+                        result = self.benchmark_estimator(
+                            estimator_class, 
+                            estimator_name, 
+                            data,
+                            reference_data=reference_data,
+                            domain=domain
+                        )
+                    else:
+                        result = self.benchmark_estimator(
+                            estimator_class, 
+                            estimator_name, 
+                            data
+                        )
                     
                     # Add run information
                     result.additional_metrics = result.additional_metrics or {}
@@ -233,7 +337,7 @@ class PerformanceBenchmarker:
         return df
     
     def results_to_dataframe(self, results: List[BenchmarkResult]) -> pd.DataFrame:
-        """Convert benchmark results to a pandas DataFrame."""
+        """Convert benchmark results to a pandas DataFrame with quality metrics."""
         data = []
         
         for result in results:
@@ -246,6 +350,20 @@ class PerformanceBenchmarker:
                 'success': result.success,
                 'error_message': result.error_message,
             }
+            
+            # Add quality metrics
+            if result.quality_score is not None:
+                row['quality_score'] = result.quality_score
+                row['quality_level'] = result.quality_level
+                
+                # Add individual quality metrics
+                if result.quality_metrics:
+                    for metric_name, metric_score in result.quality_metrics.items():
+                        row[f'quality_{metric_name}'] = metric_score
+                
+                # Add quality recommendations
+                if result.quality_recommendations:
+                    row['quality_recommendations'] = '; '.join(result.quality_recommendations[:3])  # Limit to first 3
             
             # Add additional metrics
             if result.additional_metrics:
