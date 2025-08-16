@@ -1,0 +1,138 @@
+{
+  "domain_summary": {
+    "hydrology": {
+      "quality_score": {
+        "mean": 0.760797446875037,
+        "std": 0.14123256982085916
+      },
+      "execution_time": {
+        "mean": 1.2284517288208007e-05,
+        "std": 5.836140938519166e-06
+      },
+      "accuracy_score": {
+        "mean": 0.6951896960998134,
+        "std": 0.14586987026391163
+      },
+      "success_rate": {
+        "mean": 0.8333333333333334,
+        "std": 0.37267799624996495
+      }
+    },
+    "financial": {
+      "quality_score": {
+        "mean": 0.5934221355401503,
+        "std": 0.061521223525690616
+      },
+      "execution_time": {
+        "mean": 1.3372477363137637e-05,
+        "std": 8.475726271575082e-06
+      },
+      "accuracy_score": {
+        "mean": 0.8219686526334082,
+        "std": 0.083294197688228
+      },
+      "success_rate": {
+        "mean": 0.7083333333333334,
+        "std": 0.45452967144315476
+      }
+    },
+    "biomedical": {
+      "quality_score": {
+        "mean": 0.6288593172884342,
+        "std": 0.032259391351747484
+      },
+      "execution_time": {
+        "mean": 1.2642458865517064e-05,
+        "std": 6.2945468033988256e-06
+      },
+      "accuracy_score": {
+        "mean": 0.9166853397886312,
+        "std": 0.06859439574454242
+      },
+      "success_rate": {
+        "mean": 0.7916666666666666,
+        "std": 0.4061164310337068
+      }
+    },
+    "climate": {
+      "quality_score": {
+        "mean": 0.7024886744895577,
+        "std": 0.033419761512780664
+      },
+      "execution_time": {
+        "mean": 1.2954076131184896e-05,
+        "std": 8.890091632190543e-06
+      },
+      "accuracy_score": {
+        "mean": 0.896599617210016,
+        "std": 0.08316468962744097
+      },
+      "success_rate": {
+        "mean": 0.8125,
+        "std": 0.3903123748998999
+      }
+    }
+  },
+  "domain_quality_characteristics": {
+    "hydrology": {
+      "overall_quality": {
+        "mean": 0.760797446875037,
+        "std": 0.14123256982085916
+      },
+      "distribution_similarity": 0.788256566898434,
+      "moment_preservation": 0.8288794056855979,
+      "quantile_matching": 0.769529920983413,
+      "autocorrelation_preservation": 0.9864591677418292,
+      "seasonality_preservation": 1.0,
+      "trend_preservation": 0.31647827749022805,
+      "scaling_behavior": 0.6069032833558924,
+      "spectral_properties": 0.9428388980125142,
+      "extreme_value_behavior": 0.9413950395950363
+    },
+    "financial": {
+      "overall_quality": {
+        "mean": 0.5934221355401503,
+        "std": 0.061521223525690616
+      },
+      "distribution_similarity": 0.6828753148664659,
+      "moment_preservation": 0.6303583335262781,
+      "quantile_matching": 0.7428268883146159,
+      "autocorrelation_preservation": 0.9821626479642331,
+      "seasonality_preservation": 0.793152917603213,
+      "trend_preservation": 0.13497169081646407,
+      "scaling_behavior": 0.4601159566329121,
+      "spectral_properties": 0.8045256845115983,
+      "volatility_clustering": 0.2227445805672258
+    },
+    "biomedical": {
+      "overall_quality": {
+        "mean": 0.6288593172884342,
+        "std": 0.032259391351747484
+      },
+      "distribution_similarity": 0.7350354610930193,
+      "moment_preservation": 0.7210706794285698,
+      "quantile_matching": 0.7476473650885858,
+      "autocorrelation_preservation": 0.9629231625538579,
+      "seasonality_preservation": 0.6981609926863445,
+      "trend_preservation": 0.12579636991069593,
+      "scaling_behavior": 0.23474508820831502,
+      "spectral_properties": 0.6425493451693066,
+      "baseline_behavior": 0.999999636957424
+    },
+    "climate": {
+      "overall_quality": {
+        "mean": 0.7024886744895577,
+        "std": 0.033419761512780664
+      },
+      "distribution_similarity": 0.7104366282101761,
+      "moment_preservation": 0.6850452193015483,
+      "quantile_matching": 0.7518008802413975,
+      "autocorrelation_preservation": 0.9852739503433127,
+      "seasonality_preservation": 0.8808843937977653,
+      "trend_preservation": 0.2664563303835812,
+      "scaling_behavior": 0.3803391992697477,
+      "spectral_properties": 0.8880943680160323,
+      "seasonal_pattern_strength": 0.9999993118013637
+    }
+  }
+}

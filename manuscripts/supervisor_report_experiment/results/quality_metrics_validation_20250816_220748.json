@@ -1,0 +1,10 @@
+{
+  "metric_validation": {
+    "hydrology": {},
+    "financial": {},
+    "biomedical": {},
+    "climate": {}
+  },
+  "domain_adaptation": {},
+  "quality_distributions": {}
+}

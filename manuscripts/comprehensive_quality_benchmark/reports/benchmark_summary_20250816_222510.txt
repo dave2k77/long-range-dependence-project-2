@@ -1,0 +1,85 @@
+COMPREHENSIVE QUALITY-ENHANCED BENCHMARK REPORT
+============================================================
+
+Generated: 2025-08-16 22:25:10
+Total tests: 32
+Estimators available: True
+Available estimators: DFA, GPH, Higuchi, RS, Whittle, WaveletWhittle
+
+QUALITY EVALUATION SUMMARY:
+----------------------------------------
+              mean     std  count
+domain                           
+biomedical  0.7073  0.0329      8
+climate     0.6999  0.0235      8
+financial   0.6737  0.0923      8
+hydrology   0.7904  0.1329      8
+
+BEST PERFORMING DOMAINS BY QUALITY:
+----------------------------------------
+hydrology: 0.7904
+biomedical: 0.7073
+climate: 0.6999
+financial: 0.6737
+
+ESTIMATOR PERFORMANCE SUMMARY:
+----------------------------------------
+DFA:
+  Success rate: 90.62%
+  Average time: 0.0000s
+  Hurst estimates: 29 successful
+
+GPH:
+  Success rate: 56.25%
+  Average time: 0.0000s
+  Hurst estimates: 18 successful
+
+Higuchi:
+  Success rate: 87.50%
+  Average time: 0.0000s
+  Hurst estimates: 28 successful
+
+RS:
+  Success rate: 71.88%
+  Average time: 0.0000s
+  Hurst estimates: 23 successful
+
+Whittle:
+  Success rate: 56.25%
+  Average time: 0.0000s
+  Hurst estimates: 18 successful
+
+WaveletWhittle:
+  Success rate: 90.62%
+  Average time: 0.0000s
+  Hurst estimates: 29 successful
+
+DATASET SUMMARY:
+----------------------------------------
+dataset_type  domain    
+synthetic     biomedical    8
+              climate       8
+              financial     8
+              hydrology     8
+
+PERFORMANCE SUMMARY:
+----------------------------------------
+           evaluation_time         quality_score        
+                      mean     std          mean     std
+domain                                                  
+biomedical          0.0109  0.0025        0.7073  0.0329
+climate             0.0124  0.0030        0.6999  0.0235
+financial           0.0091  0.0016        0.6737  0.0923
+hydrology           0.0098  0.0022        0.7904  0.1329
+
+RECOMMENDATIONS:
+----------------------------------------
+Best quality domains:
+  hydrology: 0.7904
+  biomedical: 0.7073
+  climate: 0.6999
+
+Fastest evaluation domains:
+  financial: 0.0091s
+  hydrology: 0.0098s
+  biomedical: 0.0109s
