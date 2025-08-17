@@ -14,7 +14,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import json
 import os
 
-from src.estimators import (
+from ..estimators import (
     DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator,
     WhittleMLEEstimator, PeriodogramEstimator, GPHEstimator,
     WaveletLeadersEstimator, WaveletWhittleEstimator
