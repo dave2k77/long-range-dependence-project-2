@@ -163,3 +163,4 @@ The Long-Range Dependence Analysis Framework is now equipped with:
 *Total realistic datasets: 5*
 *Total data points: 28,818*
 *Framework version: 1.0.0*
+

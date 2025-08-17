@@ -247,3 +247,4 @@ The **Comprehensive Benchmarking Framework for Long-Range Dependence Estimation*
 **Quality:** PROFESSIONAL STANDARD  
 **Data Completeness:** 100% COMPREHENSIVE  
 **Visualization Quality:** PUBLICATION-READY
+

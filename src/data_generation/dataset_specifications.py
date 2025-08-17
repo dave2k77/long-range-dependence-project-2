@@ -635,3 +635,4 @@ if __name__ == "__main__":
     # Create standard protocols
     protocols = create_standard_benchmark_protocols()
     print(f"Created {len(protocols)} standard protocols")
+
