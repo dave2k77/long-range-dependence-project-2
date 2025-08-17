@@ -29,6 +29,14 @@ from typing import Dict, List, Any, Optional, Tuple
 import warnings
 import psutil
 
+# Try to import scipy for robust regression fallback
+try:
+    from scipy import stats
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+    warnings.warn("scipy not available, will use numpy polyfit only")
+
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -53,6 +61,34 @@ try:
 except ImportError as e:
     print(f"Warning: Could not import data generation: {e}")
     DATA_GENERATION_AVAILABLE = False
+
+# Check optional dependencies
+def check_optional_dependencies():
+    """Check for optional dependencies and provide installation guidance."""
+    optional_deps = {
+        'openpyxl': 'Excel export support',
+        'psutil': 'Memory usage monitoring',
+        'seaborn': 'Enhanced plotting'
+    }
+    
+    missing_deps = []
+    for dep, description in optional_deps.items():
+        try:
+            __import__(dep)
+        except ImportError:
+            missing_deps.append((dep, description))
+    
+    if missing_deps:
+        print("\n⚠️  Optional dependencies missing (demo will still work):")
+        for dep, description in missing_deps:
+            print(f"   - {dep}: {description}")
+        print("   Install with: pip install " + " ".join(dep for dep, _ in missing_deps))
+        print()
+    
+    return len(missing_deps) == 0
+
+# Check dependencies
+check_optional_dependencies()
 
 # Import estimators (try multiple approaches)
 ESTIMATORS_AVAILABLE = False
@@ -663,10 +699,17 @@ class ComprehensiveQualityBenchmarker:
         df.to_csv(csv_file, index=False)
         logger.info(f"Results saved to: {csv_file}")
         
-        # Save Excel
-        excel_file = self.output_dir / "results" / f"comprehensive_benchmark_{timestamp}.xlsx"
-        df.to_excel(excel_file, index=False)
-        logger.info(f"Results also saved to: {excel_file}")
+        # Save Excel (with fallback to CSV-only if Excel export fails)
+        try:
+            excel_file = self.output_dir / "results" / f"comprehensive_benchmark_{timestamp}.xlsx"
+            df.to_excel(excel_file, index=False)
+            logger.info(f"Results also saved to: {excel_file}")
+        except ImportError as e:
+            logger.warning(f"Excel export failed (missing dependency): {e}")
+            logger.info("Results saved as CSV only. Install 'openpyxl' for Excel support.")
+        except Exception as e:
+            logger.warning(f"Excel export failed: {e}")
+            logger.info("Results saved as CSV only.")
         
         # Save summary report
         summary_file = self.output_dir / "reports" / f"benchmark_summary_{timestamp}.txt"
@@ -1614,6 +1657,52 @@ class ComprehensiveQualityBenchmarker:
             logger.warning("No synthetic data available for accuracy-focused visualization")
             return
         
+        # Data validation and cleaning
+        try:
+            # Remove rows with invalid data
+            initial_count = len(synthetic_data)
+            synthetic_data = synthetic_data.copy()  # Create a copy to avoid modifying original
+            
+            # Log initial data quality
+            logger.info(f"Initial data quality check:")
+            for col in ['accuracy', 'r_squared', 'estimation_time']:
+                if col in synthetic_data.columns:
+                    col_data = synthetic_data[col]
+                    nan_count = col_data.isna().sum()
+                    inf_count = np.isinf(col_data).sum() if col_data.dtype in ['float64', 'float32'] else 0
+                    unique_count = col_data.nunique()
+                    logger.info(f"  {col}: {len(col_data)} total, {nan_count} NaN, {inf_count} inf, {unique_count} unique values")
+            
+            # Filter out rows with NaN or infinite values in key columns
+            key_columns = ['accuracy', 'r_squared', 'estimation_time']
+            for col in key_columns:
+                if col in synthetic_data.columns:
+                    synthetic_data = synthetic_data[synthetic_data[col].notna()]
+                    synthetic_data = synthetic_data[np.isfinite(synthetic_data[col])]
+            
+            # Additional filtering for estimation_time
+            if 'estimation_time' in synthetic_data.columns:
+                synthetic_data = synthetic_data[synthetic_data['estimation_time'] > 0]
+            
+            final_count = len(synthetic_data)
+            if final_count < initial_count:
+                logger.info(f"Filtered data from {initial_count} to {final_count} valid rows")
+            
+            if final_count == 0:
+                logger.warning("No valid data remaining after filtering")
+                return
+                
+            # Log final data quality
+            logger.info(f"Final data quality after filtering:")
+            for col in ['accuracy', 'r_squared', 'estimation_time']:
+                if col in synthetic_data.columns:
+                    col_data = synthetic_data[col]
+                    logger.info(f"  {col}: {len(col_data)} valid values, range: [{col_data.min():.6f}, {col_data.max():.6f}]")
+                
+        except Exception as e:
+            logger.warning(f"Data validation failed: {e}")
+            # Continue with original data if validation fails
+        
         # Get unique estimators and create consistent color scheme
         estimators = synthetic_data['estimator'].unique()
         estimator_colors = {est: plt.cm.tab10(i/len(estimators)) for i, est in enumerate(estimators)}
@@ -1624,12 +1713,20 @@ class ComprehensiveQualityBenchmarker:
         n_cols = 3
         n_rows = (n_estimators + n_cols - 1) // n_cols  # Ceiling division
         
-        fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(24, 8 * n_rows))
-        fig1.suptitle('R-squared vs Estimation Accuracy by Estimator', fontsize=14, fontweight='bold', y=0.95)
-        
-        # Handle case where we have only one row
-        if n_rows == 1:
-            axes1 = axes1.reshape(1, -1)
+        try:
+            fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(24, 8 * n_rows))
+            fig1.suptitle('R-squared vs Estimation Accuracy by Estimator', fontsize=14, fontweight='bold', y=0.95)
+            
+            # Handle case where we have only one row
+            if n_rows == 1:
+                axes1 = axes1.reshape(1, -1)
+        except Exception as e:
+            logger.error(f"Failed to create R-squared visualization subplots: {e}")
+            # Fallback to single plot
+            fig1, axes1 = plt.subplots(1, 1, figsize=(12, 8))
+            axes1 = np.array([[axes1]])
+            n_rows, n_cols = 1, 1
+            logger.info("Falling back to single plot layout")
         
         for i, estimator in enumerate(estimators):
             row = i // 3
@@ -1646,11 +1743,41 @@ class ComprehensiveQualityBenchmarker:
                 
                 # Add trend line
                 if len(est_data) > 1:
-                    z = np.polyfit(est_data['r_squared'], est_data['accuracy'], 1)
-                    p = np.poly1d(z)
-                    ax.plot(est_data['r_squared'], p(est_data['r_squared']), 
-                            "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
-                    ax.legend(fontsize=8, loc='upper left')
+                    try:
+                        # Filter out invalid data points - be less strict
+                        valid_mask = (est_data['r_squared'].notna()) & (est_data['accuracy'].notna())
+                        valid_data = est_data[valid_mask]
+                        
+                        if len(valid_data) >= 2:  # Only need 2 points for a line
+                            r2_values = valid_data['r_squared'].values
+                            accuracy_values = valid_data['accuracy'].values
+                            
+                            # Simple validation - just check for finite values
+                            finite_mask = np.isfinite(r2_values) & np.isfinite(accuracy_values)
+                            if np.sum(finite_mask) >= 2:
+                                r2_finite = r2_values[finite_mask]
+                                accuracy_finite = accuracy_values[finite_mask]
+                                
+                                # If we have at least 2 points, try to fit a line
+                                if len(r2_finite) >= 2:
+                                    try:
+                                        z = np.polyfit(r2_finite, accuracy_finite, 1)
+                                        p = np.poly1d(z)
+                                        ax.plot(r2_finite, p(r2_finite), 
+                                                "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
+                                        ax.legend(fontsize=8, loc='upper left')
+                                    except np.linalg.LinAlgError:
+                                        # If polyfit fails, try with more robust method
+                                        if len(r2_finite) >= 3 and SCIPY_AVAILABLE:
+                                            # Use median-based robust fit
+                                            slope, intercept, _, _, _ = stats.linregress(r2_finite, accuracy_finite)
+                                            ax.plot(r2_finite, 
+                                                   slope * r2_finite + intercept, 
+                                                   "r--", alpha=0.8, linewidth=2, label=f'Slope: {slope:.3f}')
+                                            ax.legend(fontsize=8, loc='upper left')
+                    except Exception as e:
+                        # Log the error but continue without the trend line
+                        logger.warning(f"Could not generate trend line for {estimator}: {e}")
                 
                 ax.set_xlabel('R-squared', fontsize=8)
                 ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=8)
@@ -1659,10 +1786,33 @@ class ComprehensiveQualityBenchmarker:
                 
                 # Add correlation coefficient
                 if len(est_data) > 1:
-                    corr = np.corrcoef(est_data['r_squared'], est_data['accuracy'])[0, 1]
-                    ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
-                           transform=ax.transAxes, fontsize=7, 
-                           bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+                    try:
+                        # Use the same validation logic as above
+                        valid_mask = (est_data['r_squared'].notna()) & (est_data['accuracy'].notna())
+                        valid_data = est_data[valid_mask]
+                        
+                        if len(valid_data) > 1:
+                            r2_values = valid_data['r_squared'].values
+                            accuracy_values = valid_data['accuracy'].values
+                            
+                            # Check if we have enough unique values for meaningful correlation
+                            if len(np.unique(r2_values)) > 1 and len(np.unique(accuracy_values)) > 1:
+                                # Check for finite values
+                                finite_mask = np.isfinite(r2_values) & np.isfinite(accuracy_values)
+                                if np.sum(finite_mask) > 1:
+                                    r2_finite = r2_values[finite_mask]
+                                    accuracy_finite = accuracy_values[finite_mask]
+                                    
+                                    # Ensure we have enough data points and they're not all identical
+                                    if len(r2_finite) > 1 and not (r2_finite == r2_finite[0]).all():
+                                        corr = np.corrcoef(r2_finite, accuracy_finite)[0, 1]
+                                        if not np.isnan(corr):
+                                            ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
+                                                   transform=ax.transAxes, fontsize=7, 
+                                                   bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+                    except Exception as e:
+                        # Log the error but continue without the correlation
+                        logger.warning(f"Could not calculate correlation for {estimator}: {e}")
             else:
                 ax.text(0.5, 0.5, f'No data\nfor {estimator}', 
                        ha='center', va='center', transform=ax.transAxes, fontsize=9)
@@ -1675,14 +1825,23 @@ class ComprehensiveQualityBenchmarker:
             col = i % n_cols
             axes1[row, col].set_visible(False)
         
-        plt.tight_layout()
-        
-        # Save R-squared visualization
-        r2_plot_file = output_dir / f"r2_vs_accuracy_by_estimator_{timestamp}.png"
-        plt.savefig(r2_plot_file, dpi=300, bbox_inches='tight')
-        logger.info(f"R-squared vs Accuracy visualization saved to: {r2_plot_file}")
-        
-        plt.show()
+        try:
+            plt.tight_layout()
+            
+            # Save R-squared visualization
+            r2_plot_file = output_dir / f"r2_vs_accuracy_by_estimator_{timestamp}.png"
+            plt.savefig(r2_plot_file, dpi=300, bbox_inches='tight')
+            logger.info(f"R-squared vs Accuracy visualization saved to: {r2_plot_file}")
+            
+            plt.show()
+        except Exception as e:
+            logger.error(f"Failed to save R-squared visualization: {e}")
+            # Try to save with basic settings
+            try:
+                plt.savefig(r2_plot_file, dpi=150, bbox_inches='tight')
+                logger.info(f"R-squared visualization saved with basic settings")
+            except Exception as e2:
+                logger.error(f"Failed to save R-squared visualization even with basic settings: {e2}")
         
         # 2. Estimation Time vs Accuracy - Individual plots for each estimator
         # Calculate optimal grid size based on number of estimators
@@ -1695,11 +1854,19 @@ class ComprehensiveQualityBenchmarker:
             rows = (num_estimators + 2) // 3  # Ceiling division
             cols = 3
         
-        fig2, axes2 = plt.subplots(rows, cols, figsize=(8*cols, 6*rows))
-        if num_estimators == 1:
-            axes2 = np.array([axes2])  # Ensure it's always 2D
-        elif rows == 1:
-            axes2 = axes2.reshape(1, -1)  # Ensure 2D array
+        try:
+            fig2, axes2 = plt.subplots(rows, cols, figsize=(8*cols, 6*rows))
+            if num_estimators == 1:
+                axes2 = np.array([axes2])  # Ensure it's always 2D
+            elif rows == 1:
+                axes2 = axes2.reshape(1, -1)  # Ensure 2D array
+        except Exception as e:
+            logger.error(f"Failed to create time vs accuracy visualization subplots: {e}")
+            # Fallback to single plot
+            fig2, axes2 = plt.subplots(1, 1, figsize=(12, 8))
+            axes2 = np.array([[axes2]])
+            rows, cols = 1, 1
+            logger.info("Falling back to single plot layout for time vs accuracy")
         
         fig2.suptitle('Estimation Time vs Accuracy by Estimator', fontsize=14, fontweight='bold', y=0.95)
         
@@ -1718,12 +1885,41 @@ class ComprehensiveQualityBenchmarker:
                 
                 # Add trend line (log scale for time)
                 if len(est_data) > 1:
-                    log_time = np.log10(est_data['estimation_time'])
-                    z = np.polyfit(log_time, est_data['accuracy'], 1)
-                    p = np.poly1d(z)
-                    ax.plot(est_data['estimation_time'], p(log_time), 
-                            "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
-                    ax.legend(fontsize=8, loc='upper left')
+                    try:
+                        # Filter out invalid data points - be less strict
+                        valid_mask = (est_data['estimation_time'] > 0) & (est_data['accuracy'].notna())
+                        valid_data = est_data[valid_mask]
+                        
+                        if len(valid_data) >= 2:  # Only need 2 points for a line
+                            log_time = np.log10(valid_data['estimation_time'])
+                            accuracy_values = valid_data['accuracy'].values
+                            
+                            # Simple validation - just check for finite values
+                            finite_mask = np.isfinite(log_time) & np.isfinite(accuracy_values)
+                            if np.sum(finite_mask) >= 2:
+                                log_time_finite = log_time[finite_mask]
+                                accuracy_finite = accuracy_values[finite_mask]
+                                
+                                # If we have at least 2 points, try to fit a line
+                                if len(log_time_finite) >= 2:
+                                    try:
+                                        z = np.polyfit(log_time_finite, accuracy_finite, 1)
+                                        p = np.poly1d(z)
+                                        ax.plot(valid_data['estimation_time'][finite_mask], p(log_time_finite), 
+                                                "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
+                                        ax.legend(fontsize=8, loc='upper left')
+                                    except np.linalg.LinAlgError:
+                                        # If polyfit fails, try with more robust method
+                                        if len(log_time_finite) >= 3 and SCIPY_AVAILABLE:
+                                            # Use median-based robust fit
+                                            slope, intercept, _, _, _ = stats.linregress(log_time_finite, accuracy_finite)
+                                            ax.plot(valid_data['estimation_time'][finite_mask], 
+                                                   slope * log_time_finite + intercept, 
+                                                   "r--", alpha=0.8, linewidth=2, label=f'Slope: {slope:.3f}')
+                                            ax.legend(fontsize=8, loc='upper left')
+                    except Exception as e:
+                        # Log the error but continue without the trend line
+                        logger.warning(f"Could not generate trend line for {estimator}: {e}")
                 
                 ax.set_xlabel('Estimation Time (s)', fontsize=8)
                 ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=8)
@@ -1733,10 +1929,33 @@ class ComprehensiveQualityBenchmarker:
                 
                 # Add correlation coefficient
                 if len(est_data) > 1:
-                    corr = np.corrcoef(log_time, est_data['accuracy'])[0, 1]
-                    ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
-                           transform=ax.transAxes, fontsize=7, 
-                           bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+                    try:
+                        # Use the same validation logic as above
+                        valid_mask = (est_data['estimation_time'] > 0) & (est_data['accuracy'].notna())
+                        valid_data = est_data[valid_mask]
+                        
+                        if len(valid_data) > 1 and not valid_data['estimation_time'].isna().all():
+                            log_time = np.log10(valid_data['estimation_time'])
+                            accuracy_values = valid_data['accuracy'].values
+                            
+                            # Check if we have enough unique values for meaningful regression
+                            if len(np.unique(log_time)) > 1 and len(np.unique(accuracy_values)) > 1:
+                                # Check for finite values
+                                finite_mask = np.isfinite(log_time) & np.isfinite(accuracy_values)
+                                if np.sum(finite_mask) > 1:
+                                    log_time_finite = log_time[finite_mask]
+                                    accuracy_finite = accuracy_values[finite_mask]
+                                    
+                                    # Ensure we have enough data points and they're not all identical
+                                    if len(log_time_finite) > 1 and not (log_time_finite == log_time_finite[0]).all():
+                                        corr = np.corrcoef(log_time_finite, accuracy_finite)[0, 1]
+                                        if not np.isnan(corr):
+                                            ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
+                                                   transform=ax.transAxes, fontsize=7, 
+                                                   bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+                    except Exception as e:
+                        # Log the error but continue without the correlation
+                        logger.warning(f"Could not calculate correlation for {estimator}: {e}")
             else:
                 ax.text(0.5, 0.5, f'No data\nfor {estimator}', 
                        ha='center', va='center', transform=ax.transAxes, fontsize=9)
@@ -1749,14 +1968,23 @@ class ComprehensiveQualityBenchmarker:
             col = i % cols
             axes2[row, col].set_visible(False)
         
-        plt.tight_layout()
-        
-        # Save time vs accuracy visualization
-        time_plot_file = output_dir / f"time_vs_accuracy_by_estimator_{timestamp}.png"
-        plt.savefig(time_plot_file, dpi=300, bbox_inches='tight')
-        logger.info(f"Time vs Accuracy visualization saved to: {time_plot_file}")
-        
-        plt.show()
+        try:
+            plt.tight_layout()
+            
+            # Save time vs accuracy visualization
+            time_plot_file = output_dir / f"time_vs_accuracy_by_estimator_{timestamp}.png"
+            plt.savefig(time_plot_file, dpi=300, bbox_inches='tight')
+            logger.info(f"Time vs Accuracy visualization saved to: {time_plot_file}")
+            
+            plt.show()
+        except Exception as e:
+            logger.error(f"Failed to save time vs accuracy visualization: {e}")
+            # Try to save with basic settings
+            try:
+                plt.savefig(time_plot_file, dpi=150, bbox_inches='tight')
+                logger.info(f"Time vs accuracy visualization saved with basic settings")
+            except Exception as e2:
+                logger.error(f"Failed to save time vs accuracy visualization even with basic settings: {e2}")
         
         return fig1, fig2
     
