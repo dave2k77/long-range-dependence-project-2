@@ -381,29 +381,37 @@ def generate_preprocessing_report(normalization_results, domain_results):
                 "scale_reduction_factor": None
             }
             
-            # Compare methods
-            original_range = results[list(results.keys())[0]]['original_stats']['range']
-            best_method = None
-            best_reduction = 0
+            # The results structure is different than expected
+            # Each result contains 'original_stats', 'normalized_stats', etc.
+            # We need to extract the actual method name from the dataset_name
             
-            for method, method_results in results.items():
-                normalized_range = method_results['normalized_stats']['range']
+            # Extract method from dataset_name (e.g., 'zscore', 'minmax', etc.)
+            method_name = dataset_name  # The dataset_name is actually the method name
+            
+            # Get original and normalized stats
+            if 'original_stats' in results and 'normalized_stats' in results:
+                original_range = results['original_stats']['range']
+                normalized_range = results['normalized_stats']['range']
                 reduction_factor = original_range / normalized_range if normalized_range > 0 else 1
                 
-                report["normalization_analysis"][domain][dataset_name]["methods_comparison"][method] = {
-                    "original_range": method_results['original_stats']['range'],
-                    "normalized_range": method_results['normalized_stats']['range'],
-                    "reduction_factor": reduction_factor,
-                    "mean_shift": abs(method_results['normalized_stats']['mean']),
-                    "std_shift": abs(method_results['normalized_stats']['std'] - 1) if method == 'zscore' else None
+                report["normalization_analysis"][domain][method_name] = {
+                    "methods_comparison": {
+                        method_name: {
+                            "original_range": results['original_stats']['range'],
+                            "normalized_range": results['normalized_stats']['range'],
+                            "reduction_factor": reduction_factor,
+                            "mean_shift": abs(results['normalized_stats']['mean']),
+                            "std_shift": abs(results['normalized_stats']['std'] - 1) if method_name == 'zscore' else None
+                        }
+                    },
+                    "best_method": method_name,
+                    "scale_reduction_factor": reduction_factor
                 }
-                
-                if reduction_factor > best_reduction:
-                    best_reduction = reduction_factor
-                    best_method = method
+            else:
+                print(f"      ⚠️ Missing required stats in {domain}/{method_name}")
+                continue
             
-            report["normalization_analysis"][domain][dataset_name]["best_method"] = best_method
-            report["normalization_analysis"][domain][dataset_name]["scale_reduction_factor"] = best_reduction
+
     
     # Analyze domain-specific results
     for domain, datasets in domain_results.items():

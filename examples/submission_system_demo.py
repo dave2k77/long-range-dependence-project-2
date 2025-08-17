@@ -24,28 +24,207 @@ import tempfile
 import json
 from datetime import datetime
 
-# Add src to path
+# Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from data_submission.dataset_submission import DatasetSubmissionManager
-from data_submission.estimator_submission import EstimatorSubmissionManager
-from data_submission.benchmark_submission import BenchmarkSubmissionManager
-from data_submission.validation import DataValidator, EstimatorValidator
-from data_generation.synthetic_data_generator import (
-    SyntheticDataGenerator, 
-    DataSpecification, 
-    DomainType,
-    create_standard_dataset_specifications
-)
-from data_generation.dataset_specifications import (
-    DatasetSpecification as DatasetSpec,
-    DatasetMetadata,
-    DatasetProperties,
-    ConfoundDescription,
-    BenchmarkProtocol,
-    DatasetFormat,
-    DomainCategory
-)
+# Import with fallback handling
+try:
+    from data_submission.dataset_submission import DatasetSubmissionManager
+    from data_submission.estimator_submission import EstimatorSubmissionManager
+    from data_submission.benchmark_submission import BenchmarkSubmissionManager
+    from data_submission.validation import DataValidator, EstimatorValidator
+    from data_generation.synthetic_data_generator import (
+        SyntheticDataGenerator, 
+        DataSpecification, 
+        DomainType,
+        create_standard_dataset_specifications
+    )
+    from data_generation.dataset_specifications import (
+        DatasetSpecification as DatasetSpec,
+        DatasetMetadata,
+        DatasetProperties,
+        ConfoundDescription,
+        BenchmarkProtocol,
+        DatasetFormat,
+        DomainCategory
+    )
+    IMPORTS_SUCCESSFUL = True
+except ImportError as e:
+    print(f"⚠️ Import error: {e}")
+    print("Creating mock classes for demonstration...")
+    
+    # Create mock classes for demonstration
+    class MockDatasetSubmissionManager:
+        def __init__(self):
+            self.submission_counter = 0
+        def submit_raw_dataset(self, **kwargs):
+            self.submission_counter += 1
+            return f"mock_submission_{self.submission_counter}"
+        def submit_processed_dataset(self, **kwargs):
+            self.submission_counter += 1
+            return f"mock_processed_submission_{self.submission_counter}"
+        def submit_synthetic_dataset(self, **kwargs):
+            self.submission_counter += 1
+            return f"mock_synthetic_submission_{self.submission_counter}"
+        def get_submission_statistics(self):
+            return {'total_submissions': self.submission_counter, 'by_type': {}, 'by_status': {}}
+    
+    class MockEstimatorSubmissionManager:
+        def __init__(self):
+            pass
+        def submit_estimator(self, **kwargs):
+            return "mock_estimator_submission"
+        def get_submission_statistics(self):
+            return {'total_submissions': 1, 'by_status': {}, 'approved_estimators': 0}
+        def list_submissions(self):
+            return [type('MockSubmission', (), {'submission_id': 'mock_submission_1'})()]
+        def generate_documentation(self, submission_id):
+            return "mock_estimator_docs.txt"
+    
+    class MockBenchmarkSubmissionManager:
+        def __init__(self):
+            pass
+        def submit_benchmark(self, **kwargs):
+            return "mock_benchmark_submission"
+        def submit_benchmark_results(self, **kwargs):
+            return "mock_benchmark_results_submission"
+        def get_leaderboard(self, top_n=5):
+            return [
+                {'rank': 1, 'benchmark_name': 'MockEstimator1', 'leaderboard_score': 0.95},
+                {'rank': 2, 'benchmark_name': 'MockEstimator2', 'leaderboard_score': 0.92},
+                {'rank': 3, 'benchmark_name': 'MockEstimator3', 'leaderboard_score': 0.89}
+            ]
+        def get_submission_statistics(self):
+            return {
+                'total_submissions': 1, 
+                'by_status': {}, 
+                'approved_benchmarks': 0,
+                'average_leaderboard_score': 0.92
+            }
+        def list_submissions(self):
+            return [type('MockSubmission', (), {'submission_id': 'mock_benchmark_1'})()]
+        def generate_benchmark_report(self, submission_id):
+            return "mock_benchmark_report.txt"
+        def export_leaderboard_csv(self):
+            return "mock_leaderboard.csv"
+        def generate_leaderboard_visualization(self):
+            return "mock_leaderboard.png"
+    
+    class MockDataValidator:
+        def __init__(self):
+            pass
+        def validate_dataset(self, data, domain, **kwargs):
+            # Create a mock object with the expected attributes
+            class MockValidationResult:
+                def __init__(self):
+                    self.is_valid = True
+                    self.passed = True
+                    self.issues = []
+                    self.warnings = []
+            return MockValidationResult()
+    
+    class MockEstimatorValidator:
+        def __init__(self):
+            pass
+        def validate_estimator(self, estimator_file, test_data=None, **kwargs):
+            # Create a mock object with the expected attributes
+            class MockValidationResult:
+                def __init__(self):
+                    self.is_valid = True
+                    self.passed = True
+                    self.issues = []
+                    self.warnings = []
+                    self.errors = []
+            return MockValidationResult()
+        
+        def generate_validation_report(self, validation_result):
+            return "mock_validation_report.txt"
+    
+    class MockSyntheticDataGenerator:
+        def __init__(self, random_seed=42):
+            self.random_seed = random_seed
+        def generate_data(self, spec):
+            return {'data': np.random.randn(1000)}
+    
+    # Assign mock classes
+    DatasetSubmissionManager = MockDatasetSubmissionManager
+    EstimatorSubmissionManager = MockEstimatorSubmissionManager
+    BenchmarkSubmissionManager = MockBenchmarkSubmissionManager
+    DataValidator = MockDataValidator
+    EstimatorValidator = MockEstimatorValidator
+    SyntheticDataGenerator = MockSyntheticDataGenerator
+    
+    # Mock data classes
+    class DataSpecification:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                if key == 'domain_type' and isinstance(value, str):
+                    # Create a DomainType instance with the string value
+                    domain_type_obj = type('DomainType', (), {'value': value})()
+                    setattr(self, key, domain_type_obj)
+                else:
+                    setattr(self, key, value)
+    
+    class DomainType:
+        HYDROLOGY = "hydrology"
+        FINANCIAL = "financial"
+        EEG = "eeg"
+        CLIMATE = "climate"
+        
+        def __init__(self, value):
+            self.value = value
+    
+    def create_standard_dataset_specifications():
+        return []
+    
+    class DatasetSpec:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class DatasetMetadata:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class DatasetProperties:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class ConfoundDescription:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class BenchmarkProtocol:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class DatasetFormat:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+        
+        # Add common format constants
+        CSV = "csv"
+        NUMPY = "numpy"
+        JSON = "json"
+        HDF5 = "hdf5"
+    
+    class DomainCategory:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+        
+        # Add common domain constants
+        HYDROLOGY = "hydrology"
+        FINANCIAL = "financial"
+        BIOMEDICAL = "biomedical"
+        CLIMATE = "climate"
+    
+    IMPORTS_SUCCESSFUL = False
 
 
 class SubmissionSystemDemo:
@@ -68,7 +247,10 @@ class SubmissionSystemDemo:
         # Initialize synthetic data generator
         self.synthetic_generator = SyntheticDataGenerator(random_seed=42)
         
-        print("✅ All managers initialized successfully")
+        if IMPORTS_SUCCESSFUL:
+            print("✅ All managers initialized successfully (using real implementations)")
+        else:
+            print("⚠️ Using mock implementations for demonstration (imports failed)")
         print()
     
     def demonstrate_dataset_submissions(self):
