@@ -31,7 +31,7 @@ def generate_test_data(n_points=10000, hurst_values=[0.3, 0.5, 0.7, 0.9]):
     
     for hurst in hurst_values:
         print(f"  Generating fBm with H = {hurst} ({n_points} points)")
-        data = generator.generate_fractional_brownian_motion(
+        data = generator.fractional_brownian_motion(
             n_points=n_points, 
             hurst=hurst, 
             noise_level=0.1
@@ -55,20 +55,61 @@ def benchmark_estimators(datasets, estimators):
             print(f"  Processing {dataset_name}...")
             
             try:
-                # Create estimator instance
-                if "HighPerformance" in estimator_name:
+                # Create estimator instance with timeout protection for MFDFA
+                if "MFDFA" in estimator_name:
+                    # Use smaller dataset and fewer scales for MFDFA to prevent hanging
+                    if len(data) > 2000:
+                        print(f"    Reducing dataset size for MFDFA from {len(data)} to 2000 points")
+                        data_mfdfa = data[:2000]
+                    else:
+                        data_mfdfa = data
+                    
+                    # Create MFDFA with conservative parameters
+                    est = estimator_class(
+                        min_scale=8,  # Larger minimum scale
+                        max_scale=len(data_mfdfa) // 8,  # Smaller maximum scale
+                        num_scales=15,  # Fewer scales
+                        q_values=np.arange(-3, 4, 1)  # Fewer q values
+                    )
+                    data_to_use = data_mfdfa
+                elif "HighPerformance" in estimator_name:
                     if "DFA" in estimator_name:
                         est = estimator_class(use_parallel=True)
                     else:
                         est = estimator_class()
+                    data_to_use = data
                 else:
                     est = estimator_class()
+                    data_to_use = data
                 
-                # Measure execution time
+                # Measure execution time with timeout protection
                 start_time = time.time()
                 start_memory = get_memory_usage()
                 
-                results_est = est.estimate(data)
+                # Add timeout for MFDFA to prevent hanging
+                if "MFDFA" in estimator_name:
+                    try:
+                        import signal
+                        
+                        def timeout_handler(signum, frame):
+                            raise TimeoutError("MFDFA computation timed out")
+                        
+                        # Set 30 second timeout for MFDFA
+                        signal.signal(signal.SIGALRM, timeout_handler)
+                        signal.alarm(30)
+                        
+                        try:
+                            results_est = est.estimate(data_to_use)
+                            signal.alarm(0)  # Cancel alarm
+                        except TimeoutError:
+                            signal.alarm(0)  # Cancel alarm
+                            raise TimeoutError("MFDFA computation exceeded 30 second timeout")
+                    except (ImportError, AttributeError):
+                        # Windows doesn't support SIGALRM, use a simple timeout
+                        print("    Warning: No timeout protection available on this system")
+                        results_est = est.estimate(data_to_use)
+                else:
+                    results_est = est.estimate(data_to_use)
                 
                 end_time = time.time()
                 end_memory = get_memory_usage()
@@ -354,8 +395,8 @@ def main():
     print(f"  Python version: {sys.version}")
     print(f"  NumPy version: {np.__version__}")
     
-    # Generate test data
-    datasets = generate_test_data(n_points=5000, hurst_values=[0.3, 0.5, 0.7, 0.9])
+    # Generate test data (reduced size for faster execution)
+    datasets = generate_test_data(n_points=2000, hurst_values=[0.3, 0.5, 0.7, 0.9])
     
     # Define estimators to benchmark
     estimators = {

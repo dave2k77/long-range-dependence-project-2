@@ -14,11 +14,20 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import json
 import os
 
-from ..estimators import (
-    DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator,
-    WhittleMLEEstimator, PeriodogramEstimator, GPHEstimator,
-    WaveletLeadersEstimator, WaveletWhittleEstimator
-)
+# Try relative import first, fall back to absolute if needed
+try:
+    from ..estimators import (
+        DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator,
+        WhittleMLEEstimator, PeriodogramEstimator, GPHEstimator,
+        WaveletLeadersEstimator, WaveletWhittleEstimator
+    )
+except ImportError:
+    # Fall back to absolute imports
+    from src.estimators import (
+        DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator,
+        WhittleMLEEstimator, PeriodogramEstimator, GPHEstimator,
+        WaveletLeadersEstimator, WaveletWhittleEstimator
+    )
 from .synthetic_data import SyntheticDataGenerator
 from .performance_metrics import PerformanceMetrics
 
