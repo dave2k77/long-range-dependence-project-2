@@ -807,45 +807,45 @@ class ComprehensiveQualityBenchmarker:
         domain_quality = quality_data.groupby('domain')['quality_score'].mean().sort_values(ascending=True)
         bars = ax1.barh(range(len(domain_quality)), domain_quality.values, alpha=0.7, color='lightblue')
         ax1.set_yticks(range(len(domain_quality)))
-        ax1.set_yticklabels(domain_quality.index, fontsize=9)
-        ax1.set_xlabel('Average Quality Score', fontsize=10)
-        ax1.set_title('Quality Scores by Domain', fontsize=11, fontweight='bold')
+        ax1.set_yticklabels(domain_quality.index, fontsize=8)
+        ax1.set_xlabel('Average Quality Score', fontsize=9)
+        ax1.set_title('Quality Scores by Domain', fontsize=10, fontweight='bold')
         ax1.grid(True, alpha=0.3)
         
         # Add value labels
         for i, (bar, score) in enumerate(zip(bars, domain_quality.values)):
             ax1.text(score + 0.01, bar.get_y() + bar.get_height()/2, f'{score:.3f}', 
-                    va='center', ha='left', fontsize=8)
+                    va='center', ha='left', fontsize=7)
         
         # 2. Quality Scores by Dataset Type
         ax2 = axes[0, 1]
         type_quality = quality_data.groupby('dataset_type')['quality_score'].mean()
         bars = ax2.bar(range(len(type_quality)), type_quality.values, alpha=0.7, color='lightgreen')
-        ax2.set_ylabel('Average Quality Score', fontsize=10)
-        ax2.set_title('Quality Scores by Dataset Type', fontsize=11, fontweight='bold')
+        ax2.set_ylabel('Average Quality Score', fontsize=9)
+        ax2.set_title('Quality Scores by Dataset Type', fontsize=10, fontweight='bold')
         ax2.set_xticks(range(len(type_quality)))
-        ax2.set_xticklabels(type_quality.index, fontsize=9)
+        ax2.set_xticklabels(type_quality.index, fontsize=8)
         ax2.grid(True, alpha=0.3)
         
         # Add value labels
         for bar, score in zip(bars, type_quality.values):
             height = bar.get_height()
             ax2.text(bar.get_x() + bar.get_width()/2., height + 0.01, f'{score:.3f}', 
-                    ha='center', va='bottom', fontsize=8)
+                    ha='center', va='bottom', fontsize=7)
         
         # 3. Quality Score Distribution
         ax3 = axes[1, 0]
         ax3.hist(quality_data['quality_score'], bins=20, alpha=0.7, color='purple', edgecolor='black')
-        ax3.set_xlabel('Quality Score', fontsize=10)
-        ax3.set_ylabel('Frequency', fontsize=10)
-        ax3.set_title('Quality Score Distribution', fontsize=11, fontweight='bold')
+        ax3.set_xlabel('Quality Score', fontsize=9)
+        ax3.set_ylabel('Frequency', fontsize=9)
+        ax3.set_title('Quality Score Distribution', fontsize=10, fontweight='bold')
         ax3.grid(True, alpha=0.3)
         
         # Add mean line
         mean_quality = quality_data['quality_score'].mean()
         ax3.axvline(mean_quality, color='red', linestyle='--', 
                     label=f'Mean: {mean_quality:.3f}')
-        ax3.legend(fontsize=8)
+        ax3.legend(fontsize=7, loc='upper right')
         
         # 4. Quality vs Dataset Size
         ax4 = axes[1, 1]
@@ -855,20 +855,29 @@ class ComprehensiveQualityBenchmarker:
         
         scatter = ax4.scatter(quality_data['dataset_size'], quality_data['quality_score'], 
                    alpha=0.6, c=[domain_to_color[d] for d in quality_data['domain']], s=50)
-        ax4.set_xlabel('Dataset Size', fontsize=10)
-        ax4.set_ylabel('Quality Score', fontsize=10)
-        ax4.set_title('Quality vs Dataset Size', fontsize=11, fontweight='bold')
+        ax4.set_xlabel('Dataset Size', fontsize=9)
+        ax4.set_ylabel('Quality Score', fontsize=9)
+        ax4.set_title('Quality vs Dataset Size', fontsize=10, fontweight='bold')
         ax4.grid(True, alpha=0.3)
         ax4.set_xscale('log')
         
-        # Add legend for domain colors that matches exactly
+        # Add legend for domain colors that matches exactly - make it smaller and position it better
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', 
                                      markerfacecolor=domain_to_color[domain], 
-                                     markersize=8, label=domain) 
+                                     markersize=6, label=domain) 
                           for domain in unique_domains]
-        ax4.legend(handles=legend_elements, title='Domain', loc='best', fontsize=8, title_fontsize=9)
+        ax4.legend(handles=legend_elements, title='Domain', loc='upper left', 
+                  fontsize=6, title_fontsize=7, bbox_to_anchor=(1.02, 1))
         
-        plt.tight_layout()
+        # Adjust layout to prevent legend overlap
+        plt.subplots_adjust(
+            left=0.08,      # Left margin
+            right=0.85,     # Right margin (increased to make room for legend)
+            bottom=0.1,     # Bottom margin
+            top=0.92,       # Top margin
+            wspace=0.3,     # Horizontal space between subplots
+            hspace=0.35     # Vertical space between subplots
+        )
         
         # Save quality visualization
         timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -883,7 +892,7 @@ class ComprehensiveQualityBenchmarker:
     def _generate_estimator_visualization(self, df: pd.DataFrame):
         """Generate focused visualization for estimator performance benchmarking."""
         fig, axes = plt.subplots(2, 3, figsize=(24, 16))  # Increased figure size
-        fig.suptitle('Estimator Performance Benchmarking Results', fontsize=16, fontweight='bold', y=0.95)
+        fig.suptitle('Estimator Performance Benchmarking Results', fontsize=14, fontweight='bold', y=0.95)
         
         # 1. Estimator Success Rates
         ax1 = axes[0, 0]
@@ -907,21 +916,21 @@ class ComprehensiveQualityBenchmarker:
             success_rates = list(estimator_success.values())
             
             bars = ax1.bar(range(len(estimator_names)), success_rates, alpha=0.7, color='red')
-            ax1.set_ylabel('Success Rate', fontsize=10)
-            ax1.set_title('Estimator Success Rates', fontsize=11, fontweight='bold')
+            ax1.set_ylabel('Success Rate', fontsize=9)
+            ax1.set_title('Estimator Success Rates', fontsize=10, fontweight='bold')
             ax1.set_xticks(range(len(estimator_names)))
-            ax1.set_xticklabels(estimator_names, rotation=45, ha='right', fontsize=8)
+            ax1.set_xticklabels(estimator_names, rotation=45, ha='right', fontsize=7)
             ax1.grid(True, alpha=0.3)
             
             # Add value labels
             for bar, rate in zip(bars, success_rates):
                 height = bar.get_height()
                 ax1.text(bar.get_x() + bar.get_width()/2., height + 0.01, f'{rate:.1%}', 
-                        ha='center', va='bottom', fontsize=8)
+                        ha='center', va='bottom', fontsize=7)
         else:
             ax1.text(0.5, 0.5, 'No estimator data\navailable', 
-                    ha='center', va='center', transform=ax1.transAxes, fontsize=10)
-            ax1.set_title('Estimator Success Rates', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax1.transAxes, fontsize=9)
+            ax1.set_title('Estimator Success Rates', fontsize=10, fontweight='bold')
         
         # 2. Estimator Performance by Domain
         ax2 = axes[0, 1]
@@ -962,26 +971,26 @@ class ComprehensiveQualityBenchmarker:
             im = ax2.imshow(heatmap_data, cmap='YlOrRd', aspect='auto')
             ax2.set_xticks(range(len(estimators)))
             ax2.set_yticks(range(len(domains)))
-            ax2.set_xticklabels(estimators, rotation=45, ha='right', fontsize=8)
-            ax2.set_yticklabels(domains, fontsize=8)
-            ax2.set_title('Estimator Success Rates by Domain', fontsize=11, fontweight='bold')
-            ax2.set_xlabel('Estimator', fontsize=10)
-            ax2.set_ylabel('Domain', fontsize=10)
+            ax2.set_xticklabels(estimators, rotation=45, ha='right', fontsize=7)
+            ax2.set_yticklabels(domains, fontsize=7)
+            ax2.set_title('Estimator Success Rates by Domain', fontsize=10, fontweight='bold')
+            ax2.set_xlabel('Estimator', fontsize=9)
+            ax2.set_ylabel('Domain', fontsize=9)
             
             # Add colorbar
             cbar = plt.colorbar(im, ax=ax2)
-            cbar.set_label('Success Rate', fontsize=8)
+            cbar.set_label('Success Rate', fontsize=7)
             
             # Add text annotations
             for i in range(len(domains)):
                 for j in range(len(estimators)):
                     if heatmap_data[i, j] > 0:
                         ax2.text(j, i, f'{heatmap_data[i, j]:.1%}', 
-                                ha='center', va='center', color='black', fontweight='bold', fontsize=7)
+                                ha='center', va='center', color='black', fontweight='bold', fontsize=6)
         else:
             ax2.text(0.5, 0.5, 'No domain-specific\ndata available', 
-                    ha='center', va='center', transform=ax2.transAxes, fontsize=10)
-            ax2.set_title('Estimator Success Rates by Domain', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax2.transAxes, fontsize=9)
+            ax2.set_title('Estimator Success Rates by Domain', fontsize=10, fontweight='bold')
         
         # 3. NEW: Estimated H vs Ground Truth H (Synthetic Data Only)
         ax3 = axes[0, 2]
@@ -1025,22 +1034,22 @@ class ComprehensiveQualityBenchmarker:
                 max_h = max(all_ground_truth) if all_ground_truth else 0.9
                 ax3.plot([min_h, max_h], [min_h, max_h], 'k--', alpha=0.5, label='Perfect Estimation')
                 
-                ax3.set_xlabel('Ground Truth Hurst Exponent (H)', fontsize=10)
-                ax3.set_ylabel('Estimated Hurst Exponent (H)', fontsize=10)
-                ax3.set_title('Estimated vs Ground Truth H\n(Synthetic Data)', fontsize=11, fontweight='bold')
+                ax3.set_xlabel('Ground Truth Hurst Exponent (H)', fontsize=9)
+                ax3.set_ylabel('Estimated Hurst Exponent (H)', fontsize=9)
+                ax3.set_title('Estimated vs Ground Truth H\n(Synthetic Data)', fontsize=10, fontweight='bold')
                 ax3.grid(True, alpha=0.3)
-                ax3.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
+                ax3.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
                 
                 # Set equal aspect ratio for better visualization
                 ax3.set_aspect('equal', adjustable='box')
             else:
                 ax3.text(0.5, 0.5, 'No synthetic data\nestimates available', 
-                        ha='center', va='center', transform=ax3.transAxes, fontsize=10)
-                ax3.set_title('Estimated vs Ground Truth H', fontsize=11, fontweight='bold')
+                        ha='center', va='center', transform=ax3.transAxes, fontsize=9)
+                ax3.set_title('Estimated vs Ground Truth H', fontsize=10, fontweight='bold')
         else:
             ax3.text(0.5, 0.5, 'No synthetic data\navailable', 
-                    ha='center', va='center', transform=ax3.transAxes, fontsize=10)
-            ax3.set_title('Estimated vs Ground Truth H', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax3.transAxes, fontsize=9)
+            ax3.set_title('Estimated vs Ground Truth H', fontsize=10, fontweight='bold')
         
         # 4. Estimator Performance by Dataset Size
         ax4 = axes[1, 0]
@@ -1076,16 +1085,16 @@ class ComprehensiveQualityBenchmarker:
                 success_rates = [size_estimator_success[size].get(estimator, 0) for size in sizes]
                 ax4.plot(sizes, success_rates, marker='o', label=estimator, linewidth=2, markersize=6)
             
-            ax4.set_xlabel('Dataset Size', fontsize=10)
-            ax4.set_ylabel('Success Rate', fontsize=10)
-            ax4.set_title('Estimator Success Rates by Dataset Size', fontsize=11, fontweight='bold')
+            ax4.set_xlabel('Dataset Size', fontsize=9)
+            ax4.set_ylabel('Success Rate', fontsize=9)
+            ax4.set_title('Estimator Success Rates by Dataset Size', fontsize=10, fontweight='bold')
             ax4.set_xscale('log')
             ax4.grid(True, alpha=0.3)
-            ax4.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
+            ax4.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
         else:
             ax4.text(0.5, 0.5, 'No size-specific\ndata available', 
-                    ha='center', va='center', transform=ax4.transAxes, fontsize=10)
-            ax4.set_title('Estimator Success Rates by Dataset Size', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax4.transAxes, fontsize=9)
+            ax4.set_title('Estimator Success Rates by Dataset Size', fontsize=10, fontweight='bold')
         
         # 5. Estimator Performance by Dataset Type
         ax5 = axes[1, 1]
@@ -1124,17 +1133,17 @@ class ComprehensiveQualityBenchmarker:
                 success_rates = [type_estimator_success[dataset_type].get(estimator, 0) for dataset_type in types]
                 ax5.bar(x + i * width, success_rates, width, label=estimator, alpha=0.7)
             
-            ax5.set_xlabel('Dataset Type', fontsize=10)
-            ax5.set_ylabel('Success Rate', fontsize=10)
-            ax5.set_title('Estimator Success Rates by Dataset Type', fontsize=11, fontweight='bold')
+            ax5.set_xlabel('Dataset Type', fontsize=9)
+            ax5.set_ylabel('Success Rate', fontsize=9)
+            ax5.set_title('Estimator Success Rates by Dataset Type', fontsize=10, fontweight='bold')
             ax5.set_xticks(x + width * (len(estimators) - 1) / 2)
-            ax5.set_xticklabels(types, fontsize=8)
+            ax5.set_xticklabels(types, fontsize=7)
             ax5.grid(True, alpha=0.3)
-            ax5.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
+            ax5.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
         else:
             ax5.text(0.5, 0.5, 'No type-specific\ndata available', 
-                    ha='center', va='center', transform=ax5.transAxes, fontsize=10)
-            ax5.set_title('Estimator Success Rates by Dataset Type', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax5.transAxes, fontsize=9)
+            ax5.set_title('Estimator Success Rates by Dataset Type', fontsize=10, fontweight='bold')
         
         # 6. NEW: Estimator Accuracy Distribution (Synthetic Data Only)
         ax6 = axes[1, 2]
@@ -1167,22 +1176,22 @@ class ComprehensiveQualityBenchmarker:
                     patch.set_facecolor(color)
                     patch.set_alpha(0.7)
                 
-                ax6.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=10)
-                ax6.set_title('Estimator Accuracy Distribution\n(Synthetic Data)', fontsize=11, fontweight='bold')
+                ax6.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=9)
+                ax6.set_title('Estimator Accuracy Distribution\n(Synthetic Data)', fontsize=10, fontweight='bold')
                 ax6.grid(True, alpha=0.3)
-                ax6.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+                ax6.set_xticklabels(labels, rotation=45, ha='right', fontsize=7)
                 
                 # Add horizontal line at perfect accuracy
                 ax6.axhline(y=1.0, color='red', linestyle='--', alpha=0.7, label='Perfect Accuracy')
-                ax6.legend(fontsize=8)
+                ax6.legend(fontsize=6)
             else:
                 ax6.text(0.5, 0.5, 'No accuracy data\navailable', 
-                        ha='center', va='center', transform=ax6.transAxes, fontsize=10)
-                ax6.set_title('Estimator Accuracy Distribution', fontsize=11, fontweight='bold')
+                        ha='center', va='center', transform=ax6.transAxes, fontsize=9)
+                ax6.set_title('Estimator Accuracy Distribution', fontsize=10, fontweight='bold')
         else:
             ax6.text(0.5, 0.5, 'No synthetic data\navailable', 
-                    ha='center', va='center', transform=ax6.transAxes, fontsize=10)
-            ax6.set_title('Estimator Accuracy Distribution', fontsize=11, fontweight='bold')
+                    ha='center', va='center', transform=ax6.transAxes, fontsize=9)
+            ax6.set_title('Estimator Accuracy Distribution', fontsize=10, fontweight='bold')
         
         # Improved spacing and layout
         plt.subplots_adjust(
@@ -1234,12 +1243,15 @@ class ComprehensiveQualityBenchmarker:
                             'domain': row['domain'],
                             'dataset_size': row['dataset_size'],
                             'estimator': estimator_name,
-                            'ground_truth_h': est_result.get('ground_truth_h'),
+                            'ground_truth_h': row.get('ground_truth_h'),  # Get from dataset info
                             'estimated_h': est_result['hurst_estimate'],
                             'accuracy': est_result.get('accuracy'),
                             'r_squared': est_result.get('r_squared'),
                             'estimation_time': est_result.get('estimation_time'),
-                            'method': est_result.get('method', estimator_name)
+                            'method': est_result.get('method', estimator_name),
+                            'estimator_agreement': None,  # Not applicable for synthetic data with ground truth
+                            'mean_estimator_h': None,
+                            'std_estimator_h': None
                         })
         
         # Process realistic data (no ground truth, but we can analyze estimator agreement)
@@ -1305,81 +1317,115 @@ class ComprehensiveQualityBenchmarker:
     def _generate_h_comparison_visualization(self, comparison_df: pd.DataFrame, output_dir: Path, timestamp: str):
         """Generate comprehensive H-value comparison visualizations."""
         fig = plt.figure(figsize=(28, 14))  # Reduced height since we have fewer subplots
-        fig.suptitle('Comprehensive H-Value Comparison Analysis', fontsize=18, fontweight='bold', y=0.95)
+        fig.suptitle('Comprehensive H-Value Comparison Analysis', fontsize=16, fontweight='bold', y=0.95)
         
-        # 1. Estimated H vs Ground Truth H (Synthetic Data Only)
+        # Create consistent color scheme for all estimators
+        estimators = comparison_df['estimator'].unique()
+        estimator_colors = {est: plt.cm.tab10(i/len(estimators)) for i, est in enumerate(estimators)}
+        
+        # 1. Comprehensive H Comparison: Ground Truth vs Estimated vs Realistic
         ax1 = plt.subplot(2, 3, 1)
-        synthetic_data = comparison_df[comparison_df['dataset_type'] == 'synthetic']
         
+        # Plot synthetic data (ground truth vs estimated)
+        synthetic_data = comparison_df[comparison_df['dataset_type'] == 'synthetic']
         if not synthetic_data.empty:
-            # Group by estimator
             for estimator in synthetic_data['estimator'].unique():
                 est_data = synthetic_data[synthetic_data['estimator'] == estimator]
-                ax1.scatter(est_data['ground_truth_h'], est_data['estimated_h'], 
-                           alpha=0.7, s=60, label=estimator, edgecolors='black', linewidth=0.5)
+                if not est_data.empty and 'ground_truth_h' in est_data.columns and 'estimated_h' in est_data.columns:
+                    est_data = est_data[est_data['ground_truth_h'].notna()]
+                    if not est_data.empty:
+                        ax1.scatter(est_data['ground_truth_h'], est_data['estimated_h'], 
+                                   alpha=0.7, s=60, c=[estimator_colors[estimator]], 
+                                   label=f'{estimator} (Synthetic)', edgecolors='black', linewidth=0.5)
             
             # Add perfect estimation line
-            min_h = synthetic_data['ground_truth_h'].min()
-            max_h = synthetic_data['ground_truth_h'].max()
-            ax1.plot([min_h, max_h], [min_h, max_h], 'k--', alpha=0.5, label='Perfect Estimation')
-            
-            ax1.set_xlabel('Ground Truth H', fontsize=10)
-            ax1.set_ylabel('Estimated H', fontsize=10)
-            ax1.set_title('Estimated vs Ground Truth H\n(Synthetic Data)', fontsize=11, fontweight='bold')
-            ax1.grid(True, alpha=0.3)
-            ax1.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
-            ax1.set_aspect('equal', adjustable='box')
-        else:
-            ax1.text(0.5, 0.5, 'No synthetic data\navailable', ha='center', va='center', transform=ax1.transAxes, fontsize=10)
-            ax1.set_title('Estimated vs Ground Truth H', fontsize=11, fontweight='bold')
+            if not synthetic_data.empty and 'ground_truth_h' in synthetic_data.columns:
+                min_h = synthetic_data['ground_truth_h'].min()
+                max_h = synthetic_data['ground_truth_h'].max()
+                if pd.notna(min_h) and pd.notna(max_h):
+                    ax1.plot([min_h, max_h], [min_h, max_h], 'k--', alpha=0.5, label='Perfect Estimation')
         
-        # 2. Estimator Agreement on Realistic Data
-        ax2 = plt.subplot(2, 3, 2)
+        # Plot realistic data (estimated H values)
         realistic_data = comparison_df[comparison_df['dataset_type'] == 'realistic']
+        if not realistic_data.empty:
+            for estimator in realistic_data['estimator'].unique():
+                est_data = realistic_data[realistic_data['estimator'] == estimator]
+                if not est_data.empty and 'estimated_h' in est_data.columns:
+                    est_data = est_data[est_data['estimated_h'].notna()]
+                    if not est_data.empty:
+                        # For realistic data, plot estimated H vs a reference line (e.g., mean H)
+                        mean_h = est_data['estimated_h'].mean()
+                        ax1.scatter([mean_h] * len(est_data), est_data['estimated_h'], 
+                                   alpha=0.7, s=60, c=[estimator_colors[estimator]], 
+                                   label=f'{estimator} (Realistic)', edgecolors='black', linewidth=0.5, marker='s')
         
-        if not realistic_data.empty and 'estimator_agreement' in realistic_data.columns:
-            # Box plot of estimator agreement
-            agreement_data = [realistic_data[realistic_data['estimator'] == est]['estimator_agreement'].values 
-                            for est in realistic_data['estimator'].unique() if len(realistic_data[realistic_data['estimator'] == est]) > 0]
+        ax1.set_xlabel('Ground Truth H / Reference H', fontsize=9)
+        ax1.set_ylabel('Estimated H', fontsize=9)
+        ax1.set_title('Comprehensive H Comparison\n(Ground Truth vs Estimated vs Realistic)', fontsize=10, fontweight='bold')
+        ax1.grid(True, alpha=0.3)
+        ax1.set_aspect('equal', adjustable='box')
+        
+        # 2. H Value Distribution by Estimator (All Data Types)
+        ax2 = plt.subplot(2, 3, 2)
+        if not comparison_df.empty and 'estimated_h' in comparison_df.columns:
+            # Collect H estimates for each estimator
+            estimator_h_data = {}
+            for estimator in estimators:
+                est_data = comparison_df[comparison_df['estimator'] == estimator]
+                if not est_data.empty and 'estimated_h' in est_data.columns:
+                    h_values = est_data[est_data['estimated_h'].notna()]['estimated_h']
+                    if len(h_values) > 0:
+                        estimator_h_data[estimator] = h_values
             
-            if agreement_data:
-                bp = ax2.boxplot(agreement_data, labels=realistic_data['estimator'].unique(), patch_artist=True)
-                colors = plt.cm.tab10(np.linspace(0, 1, len(bp['boxes'])))
-                for patch, color in zip(bp['boxes'], colors):
-                    patch.set_facecolor(color)
+            if estimator_h_data:
+                # Create box plot
+                labels = list(estimator_h_data.keys())
+                data = list(estimator_h_data.values())
+                
+                bp = ax2.boxplot(data, labels=labels, patch_artist=True)
+                
+                # Color the boxes using consistent color scheme
+                for i, (patch, estimator) in enumerate(zip(bp['boxes'], labels)):
+                    patch.set_facecolor(estimator_colors[estimator])
                     patch.set_alpha(0.7)
                 
-                ax2.set_ylabel('Estimator Agreement\n(1 - |H_est - H_mean| / H_std)', fontsize=10)
-                ax2.set_title('Estimator Agreement on Realistic Data', fontsize=11, fontweight='bold')
+                ax2.set_ylabel('Estimated H Values', fontsize=9)
+                ax2.set_title('H Value Distribution by Estimator', fontsize=10, fontweight='bold')
                 ax2.grid(True, alpha=0.3)
-                ax2.set_xticklabels(realistic_data['estimator'].unique(), rotation=45, ha='right', fontsize=8)
+                ax2.set_xticklabels(labels, rotation=45, ha='right', fontsize=7)
+            else:
+                ax2.text(0.5, 0.5, 'No H estimates\navailable', ha='center', va='center', transform=ax2.transAxes, fontsize=9)
+                ax2.set_title('H Value Distribution by Estimator', fontsize=10, fontweight='bold')
         else:
-            ax2.text(0.5, 0.5, 'No realistic data\navailable', ha='center', va='center', transform=ax2.transAxes, fontsize=10)
-            ax2.set_title('Estimator Agreement on Realistic Data', fontsize=11, fontweight='bold')
+            ax2.text(0.5, 0.5, 'No H estimates\navailable', ha='center', va='center', transform=ax2.transAxes, fontsize=9)
+            ax2.set_title('H Value Distribution by Estimator', fontsize=10, fontweight='bold')
         
         # 3. H Value Distribution by Domain
         ax3 = plt.subplot(2, 3, 3)
-        if not comparison_df.empty:
+        if not comparison_df.empty and 'estimated_h' in comparison_df.columns:
             # Box plot of H estimates by domain
             domain_data = [comparison_df[comparison_df['domain'] == domain]['estimated_h'].values 
                           for domain in comparison_df['domain'].unique()]
             
-            if domain_data:
+            if domain_data and any(len(d) > 0 for d in domain_data):
                 bp = ax3.boxplot(domain_data, labels=comparison_df['domain'].unique(), patch_artist=True)
                 colors = plt.cm.tab10(np.linspace(0, 1, len(bp['boxes'])))
                 for patch, color in zip(bp['boxes'], colors):
                     patch.set_facecolor(color)
                     patch.set_alpha(0.7)
                 
-                ax3.set_ylabel('Estimated H Values', fontsize=10)
-                ax3.set_title('H Value Distribution by Domain', fontsize=11, fontweight='bold')
+                ax3.set_ylabel('Estimated H Values', fontsize=9)
+                ax3.set_title('H Value Distribution by Domain', fontsize=10, fontweight='bold')
                 ax3.grid(True, alpha=0.3)
-                ax3.set_xticklabels(comparison_df['domain'].unique(), rotation=45, ha='right', fontsize=8)
+                ax3.set_xticklabels(comparison_df['domain'].unique(), rotation=45, ha='right', fontsize=7)
+            else:
+                ax3.text(0.5, 0.5, 'No domain data\navailable', ha='center', va='center', transform=ax3.transAxes, fontsize=9)
+                ax3.set_title('H Value Distribution by Domain', fontsize=10, fontweight='bold')
         else:
-            ax3.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax3.transAxes, fontsize=10)
-            ax3.set_title('H Value Distribution by Domain', fontsize=11, fontweight='bold')
+            ax3.text(0.5, 0.5, 'No domain data\navailable', ha='center', va='center', transform=ax3.transAxes, fontsize=9)
+            ax3.set_title('H Value Distribution by Domain', fontsize=10, fontweight='bold')
         
-        # 4. Estimator Performance Comparison
+        # 4. Estimator Performance Comparison (Accuracy vs Agreement)
         ax4 = plt.subplot(2, 3, 4)
         if not comparison_df.empty:
             # Calculate mean accuracy and agreement for each estimator
@@ -1391,9 +1437,12 @@ class ComprehensiveQualityBenchmarker:
                 accuracy_data = est_data[est_data['accuracy'].notna()]['accuracy']
                 mean_accuracy = accuracy_data.mean() if len(accuracy_data) > 0 else None
                 
-                # Agreement from realistic data
-                agreement_data = est_data[est_data['estimator_agreement'].notna()]['estimator_agreement']
-                mean_agreement = agreement_data.mean() if len(agreement_data) > 0 else None
+                # Agreement from realistic data (if available)
+                if 'estimator_agreement' in est_data.columns:
+                    agreement_data = est_data[est_data['estimator_agreement'].notna()]['estimator_agreement']
+                    mean_agreement = agreement_data.mean() if len(agreement_data) > 0 else None
+                else:
+                    mean_agreement = None
                 
                 estimator_stats[estimator] = {
                     'accuracy': mean_accuracy,
@@ -1401,33 +1450,50 @@ class ComprehensiveQualityBenchmarker:
                 }
             
             # Create comparison plot
-            estimators = list(estimator_stats.keys())
-            accuracies = [estimator_stats[est]['accuracy'] for est in estimators]
-            agreements = [estimator_stats[est]['agreement'] for est in estimators]
+            estimators_list = list(estimator_stats.keys())
+            accuracies = [estimator_stats[est]['accuracy'] for est in estimators_list]
+            agreements = [estimator_stats[est]['agreement'] for est in estimators_list]
             
-            x = np.arange(len(estimators))
-            width = 0.35
+            # Filter out None values for plotting
+            valid_indices = []
+            valid_accuracies = []
+            valid_agreements = []
+            valid_estimators = []
             
-            bars1 = ax4.bar(x - width/2, accuracies, width, label='Accuracy (Synthetic)', alpha=0.7, color='skyblue')
-            bars2 = ax4.bar(x + width/2, agreements, width, label='Agreement (Realistic)', alpha=0.7, color='lightcoral')
+            for i, (acc, agr) in enumerate(zip(accuracies, agreements)):
+                if acc is not None or agr is not None:  # Include if at least one is not None
+                    valid_indices.append(i)
+                    valid_accuracies.append(acc if acc is not None else 0)
+                    valid_agreements.append(agr if agr is not None else 0)
+                    valid_estimators.append(estimators_list[i])
             
-            ax4.set_xlabel('Estimator', fontsize=10)
-            ax4.set_ylabel('Score', fontsize=10)
-            ax4.set_title('Estimator Performance Comparison', fontsize=11, fontweight='bold')
-            ax4.set_xticks(x)
-            ax4.set_xticklabels(estimators, rotation=45, ha='right', fontsize=8)
-            ax4.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
-            ax4.grid(True, alpha=0.3)
+            if valid_indices:
+                x = np.arange(len(valid_estimators))
+                width = 0.35
+                
+                bars1 = ax4.bar(x - width/2, valid_accuracies, width, label='Accuracy (Synthetic)', alpha=0.7, color='skyblue')
+                bars2 = ax4.bar(x + width/2, valid_agreements, width, label='Agreement (Realistic)', alpha=0.7, color='lightcoral')
+                
+                ax4.set_xticks(x)
+                ax4.set_xticklabels(valid_estimators, rotation=45, ha='right', fontsize=7)
+                ax4.set_xlabel('Estimator', fontsize=9)
+                ax4.set_ylabel('Score', fontsize=9)
+                ax4.set_title('Estimator Performance Comparison', fontsize=10, fontweight='bold')
+                ax4.grid(True, alpha=0.3)
+            else:
+                ax4.text(0.5, 0.5, 'No valid data\nfor comparison', 
+                        ha='center', va='center', transform=ax4.transAxes, fontsize=9)
+                ax4.set_title('Estimator Performance Comparison', fontsize=10, fontweight='bold')
         else:
-            ax4.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax4.transAxes, fontsize=10)
-            ax4.set_title('Estimator Performance Comparison', fontsize=11, fontweight='bold')
+            ax4.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax4.transAxes, fontsize=9)
+            ax4.set_title('Estimator Performance Comparison', fontsize=10, fontweight='bold')
         
-        # 5. H Estimation Uncertainty Analysis
+        # 5. H Estimation Uncertainty Analysis (Relative Error)
         ax5 = plt.subplot(2, 3, 5)
         if not comparison_df.empty:
             # Calculate relative error for synthetic data
             synthetic_data = comparison_df[comparison_df['dataset_type'] == 'synthetic']
-            if not synthetic_data.empty:
+            if not synthetic_data.empty and 'ground_truth_h' in synthetic_data.columns:
                 synthetic_data = synthetic_data[synthetic_data['ground_truth_h'].notna()]
                 if not synthetic_data.empty:
                     relative_errors = []
@@ -1435,10 +1501,12 @@ class ComprehensiveQualityBenchmarker:
                     
                     for estimator in synthetic_data['estimator'].unique():
                         est_data = synthetic_data[synthetic_data['estimator'] == estimator]
-                        if len(est_data) > 0:
-                            errors = np.abs(est_data['estimated_h'] - est_data['ground_truth_h']) / est_data['ground_truth_h']
-                            relative_errors.extend(errors)
-                            estimator_names.extend([estimator] * len(errors))
+                        if len(est_data) > 0 and 'estimated_h' in est_data.columns:
+                            est_data = est_data[est_data['estimated_h'].notna()]
+                            if len(est_data) > 0:
+                                errors = np.abs(est_data['estimated_h'] - est_data['ground_truth_h']) / est_data['ground_truth_h']
+                                relative_errors.extend(errors)
+                                estimator_names.extend([estimator] * len(errors))
                     
                     if relative_errors:
                         # Box plot of relative errors
@@ -1446,22 +1514,28 @@ class ComprehensiveQualityBenchmarker:
                                     for est in set(estimator_names)]
                         
                         bp = ax5.boxplot(error_data, labels=list(set(estimator_names)), patch_artist=True)
-                        colors = plt.cm.tab10(np.linspace(0, 1, len(bp['boxes'])))
+                        colors = [estimator_colors[est] for est in set(estimator_names)]
                         for patch, color in zip(bp['boxes'], colors):
                             patch.set_facecolor(color)
                             patch.set_alpha(0.7)
                         
-                        ax5.set_ylabel('Relative Error\n|H_est - H_true| / H_true', fontsize=10)
-                        ax5.set_title('H Estimation Uncertainty\n(Relative Error)', fontsize=11, fontweight='bold')
+                        ax5.set_ylabel('Relative Error\n|H_est - H_true| / H_true', fontsize=9)
+                        ax5.set_title('H Estimation Uncertainty\n(Relative Error)', fontsize=10, fontweight='bold')
                         ax5.grid(True, alpha=0.3)
-                        ax5.set_xticklabels(list(set(estimator_names)), rotation=45, ha='right', fontsize=8)
+                        ax5.set_xticklabels(list(set(estimator_names)), rotation=45, ha='right', fontsize=7)
                         ax5.set_yscale('log')
+                    else:
+                        ax5.text(0.5, 0.5, 'No error data\navailable', ha='center', va='center', transform=ax5.transAxes, fontsize=9)
+                        ax5.set_title('H Estimation Uncertainty', fontsize=10, fontweight='bold')
+                else:
+                    ax5.text(0.5, 0.5, 'No synthetic data\nfor error analysis', ha='center', va='center', transform=ax5.transAxes, fontsize=9)
+                    ax5.set_title('H Estimation Uncertainty', fontsize=10, fontweight='bold')
             else:
-                ax5.text(0.5, 0.5, 'No synthetic data\nfor error analysis', ha='center', va='center', transform=ax5.transAxes, fontsize=10)
-                ax5.set_title('H Estimation Uncertainty', fontsize=11, fontweight='bold')
+                ax5.text(0.5, 0.5, 'No synthetic data\nfor error analysis', ha='center', va='center', transform=ax5.transAxes, fontsize=9)
+                ax5.set_title('H Estimation Uncertainty', fontsize=10, fontweight='bold')
         else:
-            ax5.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax5.transAxes, fontsize=10)
-            ax5.set_title('H Estimation Uncertainty', fontsize=11, fontweight='bold')
+            ax5.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax5.transAxes, fontsize=9)
+            ax5.set_title('H Estimation Uncertainty', fontsize=10, fontweight='bold')
         
         # 6. Dataset Size vs Estimation Accuracy
         ax6 = plt.subplot(2, 3, 6)
@@ -1472,26 +1546,48 @@ class ComprehensiveQualityBenchmarker:
                 if not synthetic_data.empty:
                     for estimator in synthetic_data['estimator'].unique():
                         est_data = synthetic_data[synthetic_data['estimator'] == estimator]
-                        ax6.scatter(est_data['dataset_size'], est_data['accuracy'], 
-                                   alpha=0.7, s=60, label=estimator, edgecolors='black', linewidth=0.5)
+                        if not est_data.empty and 'dataset_size' in est_data.columns:
+                            est_data = est_data[est_data['dataset_size'].notna()]
+                            if not est_data.empty:
+                                ax6.scatter(est_data['dataset_size'], est_data['accuracy'], 
+                                           alpha=0.7, s=60, c=[estimator_colors[estimator]], 
+                                           label=estimator, edgecolors='black', linewidth=0.5)
                     
-                    ax6.set_xlabel('Dataset Size', fontsize=10)
-                    ax6.set_ylabel('Accuracy', fontsize=10)
-                    ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=11, fontweight='bold')
+                    ax6.set_xlabel('Dataset Size', fontsize=9)
+                    ax6.set_ylabel('Accuracy', fontsize=9)
+                    ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=10, fontweight='bold')
                     ax6.set_xscale('log')
                     ax6.grid(True, alpha=0.3)
-                    ax6.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=8)
+                else:
+                    ax6.text(0.5, 0.5, 'No accuracy data\navailable', ha='center', va='center', transform=ax6.transAxes, fontsize=9)
+                    ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=10, fontweight='bold')
             else:
-                ax6.text(0.5, 0.5, 'No accuracy data\navailable', ha='center', va='center', transform=ax6.transAxes, fontsize=10)
-                ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=11, fontweight='bold')
+                ax6.text(0.5, 0.5, 'No accuracy data\navailable', ha='center', va='center', transform=ax6.transAxes, fontsize=9)
+                ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=10, fontweight='bold')
         else:
-            ax6.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax6.transAxes, fontsize=10)
-            ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=11, fontweight='bold')
+            ax6.text(0.5, 0.5, 'No data\navailable', ha='center', va='center', transform=ax6.transAxes, fontsize=9)
+            ax6.set_title('Dataset Size vs Estimation Accuracy', fontsize=10, fontweight='bold')
+        
+        # Add single legend for the entire figure
+        handles, labels = ax1.get_legend_handles_labels()
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_handles = []
+        unique_labels = []
+        for handle, label in zip(handles, labels):
+            if label not in seen:
+                seen.add(label)
+                unique_handles.append(handle)
+                unique_labels.append(label)
+        
+        # Position legend outside the right side of the figure
+        fig.legend(unique_handles, unique_labels, loc='center right', bbox_to_anchor=(0.98, 0.5), 
+                  fontsize=6, title='Estimators and Data Types', title_fontsize=7)
         
         # Improved spacing and layout for 6 subplots
         plt.subplots_adjust(
             left=0.05,      # Left margin
-            right=0.85,     # Right margin (increased to make room for legends)
+            right=0.85,     # Right margin (increased to make room for legend)
             bottom=0.08,    # Bottom margin
             top=0.90,       # Top margin
             wspace=0.35,    # Horizontal space between subplots
@@ -1518,12 +1614,22 @@ class ComprehensiveQualityBenchmarker:
             logger.warning("No synthetic data available for accuracy-focused visualization")
             return
         
-        # Get unique estimators
+        # Get unique estimators and create consistent color scheme
         estimators = synthetic_data['estimator'].unique()
+        estimator_colors = {est: plt.cm.tab10(i/len(estimators)) for i, est in enumerate(estimators)}
         
         # 1. R-squared vs Estimation Accuracy - Individual plots for each estimator
-        fig1, axes1 = plt.subplots(2, 3, figsize=(24, 16))
-        fig1.suptitle('R-squared vs Estimation Accuracy by Estimator', fontsize=16, fontweight='bold', y=0.95)
+        # Calculate the number of rows needed based on the number of estimators
+        n_estimators = len(estimators)
+        n_cols = 3
+        n_rows = (n_estimators + n_cols - 1) // n_cols  # Ceiling division
+        
+        fig1, axes1 = plt.subplots(n_rows, n_cols, figsize=(24, 8 * n_rows))
+        fig1.suptitle('R-squared vs Estimation Accuracy by Estimator', fontsize=14, fontweight='bold', y=0.95)
+        
+        # Handle case where we have only one row
+        if n_rows == 1:
+            axes1 = axes1.reshape(1, -1)
         
         for i, estimator in enumerate(estimators):
             row = i // 3
@@ -1536,7 +1642,7 @@ class ComprehensiveQualityBenchmarker:
             
             if not est_data.empty:
                 ax.scatter(est_data['r_squared'], est_data['accuracy'], 
-                           alpha=0.7, s=80, color='blue', edgecolors='black', linewidth=0.5)
+                           alpha=0.7, s=80, c=[estimator_colors[estimator]], edgecolors='black', linewidth=0.5)
                 
                 # Add trend line
                 if len(est_data) > 1:
@@ -1546,26 +1652,27 @@ class ComprehensiveQualityBenchmarker:
                             "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
                     ax.legend(fontsize=8, loc='upper left')
                 
-                ax.set_xlabel('R-squared', fontsize=9)
-                ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=9)
-                ax.set_title(f'{estimator}\nR-squared vs Accuracy', fontsize=10, fontweight='bold')
+                ax.set_xlabel('R-squared', fontsize=8)
+                ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=8)
+                ax.set_title(f'{estimator}\nR-squared vs Accuracy', fontsize=9, fontweight='bold')
                 ax.grid(True, alpha=0.3)
                 
                 # Add correlation coefficient
                 if len(est_data) > 1:
                     corr = np.corrcoef(est_data['r_squared'], est_data['accuracy'])[0, 1]
                     ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
-                           transform=ax.transAxes, fontsize=8, 
+                           transform=ax.transAxes, fontsize=7, 
                            bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
             else:
                 ax.text(0.5, 0.5, f'No data\nfor {estimator}', 
-                       ha='center', va='center', transform=ax.transAxes, fontsize=10)
-                ax.set_title(f'{estimator}\nR-squared vs Accuracy', fontsize=10, fontweight='bold')
+                       ha='center', va='center', transform=ax.transAxes, fontsize=9)
+                ax.set_title(f'{estimator}\nR-squared vs Accuracy', fontsize=9, fontweight='bold')
         
         # Hide unused subplots
-        for i in range(len(estimators), 6):
-            row = i // 3
-            col = i % 3
+        total_subplots = n_rows * n_cols
+        for i in range(len(estimators), total_subplots):
+            row = i // n_cols
+            col = i % n_cols
             axes1[row, col].set_visible(False)
         
         plt.tight_layout()
@@ -1578,12 +1685,27 @@ class ComprehensiveQualityBenchmarker:
         plt.show()
         
         # 2. Estimation Time vs Accuracy - Individual plots for each estimator
-        fig2, axes2 = plt.subplots(2, 3, figsize=(24, 16))
-        fig2.suptitle('Estimation Time vs Accuracy by Estimator', fontsize=16, fontweight='bold', y=0.95)
+        # Calculate optimal grid size based on number of estimators
+        num_estimators = len(estimators)
+        if num_estimators <= 3:
+            rows, cols = 1, num_estimators
+        elif num_estimators <= 6:
+            rows, cols = 2, 3
+        else:
+            rows = (num_estimators + 2) // 3  # Ceiling division
+            cols = 3
+        
+        fig2, axes2 = plt.subplots(rows, cols, figsize=(8*cols, 6*rows))
+        if num_estimators == 1:
+            axes2 = np.array([axes2])  # Ensure it's always 2D
+        elif rows == 1:
+            axes2 = axes2.reshape(1, -1)  # Ensure 2D array
+        
+        fig2.suptitle('Estimation Time vs Accuracy by Estimator', fontsize=14, fontweight='bold', y=0.95)
         
         for i, estimator in enumerate(estimators):
-            row = i // 3
-            col = i % 3
+            row = i // cols
+            col = i % cols
             ax = axes2[row, col]
             
             est_data = synthetic_data[synthetic_data['estimator'] == estimator]
@@ -1592,7 +1714,7 @@ class ComprehensiveQualityBenchmarker:
             
             if not est_data.empty:
                 ax.scatter(est_data['estimation_time'], est_data['accuracy'], 
-                           alpha=0.7, s=80, color='green', edgecolors='black', linewidth=0.5)
+                           alpha=0.7, s=80, c=[estimator_colors[estimator]], edgecolors='black', linewidth=0.5)
                 
                 # Add trend line (log scale for time)
                 if len(est_data) > 1:
@@ -1603,9 +1725,9 @@ class ComprehensiveQualityBenchmarker:
                             "r--", alpha=0.8, linewidth=2, label=f'Slope: {z[0]:.3f}')
                     ax.legend(fontsize=8, loc='upper left')
                 
-                ax.set_xlabel('Estimation Time (s)', fontsize=9)
-                ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=9)
-                ax.set_title(f'{estimator}\nTime vs Accuracy', fontsize=10, fontweight='bold')
+                ax.set_xlabel('Estimation Time (s)', fontsize=8)
+                ax.set_ylabel('Accuracy\n(1 - |H_est - H_true| / H_true)', fontsize=8)
+                ax.set_title(f'{estimator}\nTime vs Accuracy', fontsize=9, fontweight='bold')
                 ax.set_xscale('log')
                 ax.grid(True, alpha=0.3)
                 
@@ -1613,17 +1735,18 @@ class ComprehensiveQualityBenchmarker:
                 if len(est_data) > 1:
                     corr = np.corrcoef(log_time, est_data['accuracy'])[0, 1]
                     ax.text(0.05, 0.95, f'Correlation: {corr:.3f}', 
-                           transform=ax.transAxes, fontsize=8, 
+                           transform=ax.transAxes, fontsize=7, 
                            bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
             else:
                 ax.text(0.5, 0.5, f'No data\nfor {estimator}', 
-                       ha='center', va='center', transform=ax.transAxes, fontsize=10)
-                ax.set_title(f'{estimator}\nTime vs Accuracy', fontsize=10, fontweight='bold')
+                       ha='center', va='center', transform=ax.transAxes, fontsize=9)
+                ax.set_title(f'{estimator}\nTime vs Accuracy', fontsize=9, fontweight='bold')
         
         # Hide unused subplots
-        for i in range(len(estimators), 6):
-            row = i // 3
-            col = i % 3
+        total_subplots = rows * cols
+        for i in range(len(estimators), total_subplots):
+            row = i // cols
+            col = i % cols
             axes2[row, col].set_visible(False)
         
         plt.tight_layout()

@@ -1,0 +1,99 @@
+COMPREHENSIVE QUALITY-ENHANCED BENCHMARK REPORT
+============================================================
+
+Generated: 2025-08-17 18:46:46
+Total tests: 37
+Estimators available: True
+Available estimators: DFA, GPH, Higuchi, RS, Whittle, WaveletWhittle, DMA, WaveletVariance
+
+QUALITY EVALUATION SUMMARY:
+----------------------------------------
+              mean     std  count
+domain                           
+biomedical  0.7480  0.1054      9
+climate     0.8298  0.0804      9
+financial   0.6797  0.1220      9
+hydrology   0.8053  0.1567      9
+
+BEST PERFORMING DOMAINS BY QUALITY:
+----------------------------------------
+climate: 0.8298
+hydrology: 0.8053
+biomedical: 0.7480
+financial: 0.6797
+
+ESTIMATOR PERFORMANCE SUMMARY:
+----------------------------------------
+DFA:
+  Success rate: 83.78%
+  Average time: 0.0000s
+  Hurst estimates: 31 successful
+
+GPH:
+  Success rate: 67.57%
+  Average time: 0.0000s
+  Hurst estimates: 25 successful
+
+Higuchi:
+  Success rate: 86.49%
+  Average time: 0.0000s
+  Hurst estimates: 32 successful
+
+RS:
+  Success rate: 75.68%
+  Average time: 0.0000s
+  Hurst estimates: 28 successful
+
+Whittle:
+  Success rate: 59.46%
+  Average time: 0.0000s
+  Hurst estimates: 22 successful
+
+WaveletWhittle:
+  Success rate: 83.78%
+  Average time: 0.0000s
+  Hurst estimates: 31 successful
+
+DMA:
+  Success rate: 83.78%
+  Average time: 0.0000s
+  Hurst estimates: 31 successful
+
+WaveletVariance:
+  Success rate: 91.89%
+  Average time: 0.0000s
+  Hurst estimates: 34 successful
+
+DATASET SUMMARY:
+----------------------------------------
+dataset_type  domain    
+realistic     biomedical    1
+              climate       2
+              financial     1
+              hydrology     1
+synthetic     biomedical    8
+              climate       8
+              financial     8
+              hydrology     8
+
+PERFORMANCE SUMMARY:
+----------------------------------------
+           evaluation_time         quality_score        
+                      mean     std          mean     std
+domain                                                  
+biomedical          0.0101  0.0038        0.7480  0.1054
+climate             0.0200  0.0114        0.8298  0.0804
+financial           0.0090  0.0024        0.6797  0.1220
+hydrology           0.0086  0.0024        0.8053  0.1567
+
+RECOMMENDATIONS:
+----------------------------------------
+Best quality domains:
+  climate: 0.8298
+  hydrology: 0.8053
+  biomedical: 0.7480
+
+Fastest evaluation domains:
+  hydrology: 0.0086s
+  financial: 0.0090s
+  biomedical: 0.0101s
