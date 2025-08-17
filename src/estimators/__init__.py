@@ -6,9 +6,9 @@ long-range dependence in time series data.
 """
 
 from .base import BaseEstimator
-from .temporal import DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator
+from .temporal import DFAEstimator, MFDFAEstimator, RSEstimator, HiguchiEstimator, DMAEstimator
 from .spectral import WhittleMLEEstimator, PeriodogramEstimator, GPHEstimator
-from .wavelet import WaveletLeadersEstimator, WaveletWhittleEstimator
+from .wavelet import WaveletLeadersEstimator, WaveletWhittleEstimator, WaveletLogVarianceEstimator, WaveletVarianceEstimator
 
 # High-performance variants
 try:
@@ -22,6 +22,8 @@ try:
     from .high_performance_wavelet_leaders import HighPerformanceWaveletLeadersEstimator
     from .high_performance_wavelet_whittle import HighPerformanceWaveletWhittleEstimator
     from .high_performance_wavelet_log_variance import HighPerformanceWaveletLogVarianceEstimator
+    from .high_performance_dma import HighPerformanceDMAEstimator
+    from .high_performance_wavelet_variance import HighPerformanceWaveletVarianceEstimator
     HIGH_PERFORMANCE_AVAILABLE = True
 except ImportError:
     HIGH_PERFORMANCE_AVAILABLE = False
@@ -32,11 +34,14 @@ __all__ = [
     "MFDFAEstimator", 
     "RSEstimator",
     "HiguchiEstimator",
+    "DMAEstimator",
     "WhittleMLEEstimator",
     "PeriodogramEstimator",
     "GPHEstimator",
     "WaveletLeadersEstimator",
     "WaveletWhittleEstimator",
+    "WaveletLogVarianceEstimator",
+    "WaveletVarianceEstimator",
 ]
 
 # Add high-performance variants if available
@@ -51,5 +56,7 @@ if HIGH_PERFORMANCE_AVAILABLE:
         "HighPerformanceGPHEstimator",
         "HighPerformanceWaveletLeadersEstimator",
         "HighPerformanceWaveletWhittleEstimator",
-        "HighPerformanceWaveletLogVarianceEstimator"
+        "HighPerformanceWaveletLogVarianceEstimator",
+        "HighPerformanceDMAEstimator",
+        "HighPerformanceWaveletVarianceEstimator"
     ])

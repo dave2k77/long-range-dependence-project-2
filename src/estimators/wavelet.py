@@ -633,3 +633,470 @@ class WaveletWhittleEstimator(BaseEstimator):
         self.optimization_success = None
         self.optimization_message = None
         self.negative_log_likelihood = None
+
+
+class WaveletLogVarianceEstimator(BaseEstimator):
+    """
+    Wavelet Log-Variance estimator for long-range dependence.
+    
+    This method estimates long-range dependence by analyzing the scaling behavior
+    of wavelet coefficient variances across different scales. It's particularly
+    effective for non-stationary time series and provides robust estimates
+    of the Hurst exponent.
+    
+    References:
+    - Abry, P., & Veitch, D. (1998). Wavelet analysis of long-range-dependent traffic.
+      IEEE Transactions on Information Theory, 44(1), 2-15.
+    """
+    
+    def __init__(self, name: str = "WaveletLogVariance", **kwargs):
+        super().__init__(name=name, **kwargs)
+        self.wavelet = kwargs.get('wavelet', 'db4')
+        self.num_scales = kwargs.get('num_scales', 20)
+        self.min_scale = kwargs.get('min_scale', 2)
+        self.max_scale = kwargs.get('max_scale', None)
+        self.confidence_level = kwargs.get('confidence_level', 0.95)
+        self.n_bootstrap = kwargs.get('n_bootstrap', 1000)
+        self.data = None
+        self.wavelet_coeffs = None
+        self.scales = None
+        self.wavelet_variances = None
+        self.hurst_exponent = None
+        self.scaling_error = None
+        self.confidence_interval = None
+        
+    def fit(self, data: np.ndarray, **kwargs) -> 'WaveletLogVarianceEstimator':
+        """Fit the Wavelet Log-Variance estimator to the data."""
+        self.data = np.asarray(data, dtype=float)
+        self._validate_data()
+        return self
+        
+    def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
+        """Estimate long-range dependence using Wavelet Log-Variance method."""
+        start_time = time.time()
+        
+        if data is not None:
+            self.fit(data, **kwargs)
+            
+        if self.data is None:
+            raise ValueError("No data available. Call fit() first.")
+            
+        # Generate scales
+        self._generate_scales()
+        
+        # Compute wavelet coefficients
+        self._compute_wavelet_coefficients()
+        
+        # Calculate wavelet variances
+        self._calculate_wavelet_variances()
+        
+        # Fit scaling law to extract Hurst exponent
+        self._fit_scaling_law()
+        
+        # Calculate confidence interval
+        self._calculate_confidence_interval()
+        
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
+        return self.get_results()
+        
+    def _validate_data(self):
+        """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
+        if len(self.data) < 100:
+            raise ValueError("Data must have at least 100 points for reliable wavelet analysis")
+        if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
+            raise ValueError("Data contains NaN or infinite values")
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
+            
+    def _generate_scales(self):
+        """Generate wavelet scales for analysis."""
+        if self.max_scale is None:
+            self.max_scale = len(self.data) // 4
+            
+        # Generate scales logarithmically spaced
+        self.scales = np.logspace(
+            np.log10(self.min_scale), 
+            np.log10(self.max_scale), 
+            self.num_scales, 
+            dtype=int
+        )
+        # Ensure unique scales
+        self.scales = np.unique(np.maximum(self.scales, self.min_scale))
+        
+    def _compute_wavelet_coefficients(self):
+        """Compute wavelet coefficients for all scales."""
+        self.wavelet_coeffs = {}
+        
+        for scale in self.scales:
+            try:
+                # Use PyWavelets for wavelet decomposition
+                coeffs = pywt.wavedec(self.data, self.wavelet, level=scale, mode='periodic')
+                # Store detail coefficients (excluding approximation)
+                self.wavelet_coeffs[scale] = coeffs[1:] if len(coeffs) > 1 else []
+            except Exception as e:
+                logger.warning(f"Failed to compute wavelet coefficients for scale {scale}: {e}")
+                self.wavelet_coeffs[scale] = []
+                
+    def _calculate_wavelet_variances(self):
+        """Calculate wavelet variances for all scales."""
+        self.wavelet_variances = np.zeros(len(self.scales))
+        
+        for i, scale in enumerate(self.scales):
+            coeffs = self.wavelet_coeffs.get(scale, [])
+            if coeffs:
+                # Calculate variance of wavelet coefficients
+                all_coeffs = np.concatenate(coeffs)
+                if len(all_coeffs) > 0:
+                    self.wavelet_variances[i] = np.var(all_coeffs)
+                else:
+                    self.wavelet_variances[i] = np.nan
+            else:
+                self.wavelet_variances[i] = np.nan
+                
+    def _fit_scaling_law(self):
+        """Fit scaling law to extract Hurst exponent."""
+        # Get valid variance values
+        valid_mask = ~np.isnan(self.wavelet_variances)
+        if np.sum(valid_mask) < 3:
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            return
+            
+        scale_valid = self.scales[valid_mask]
+        variance_valid = self.wavelet_variances[valid_mask]
+        
+        try:
+            # Log-log linear fit: log(V) = -2H * log(s) + C
+            log_scale = np.log(scale_valid)
+            log_variance = np.log(variance_valid)
+            
+            # Fit linear relationship
+            coeffs = np.polyfit(log_scale, log_variance, 1)
+            slope = coeffs[0]
+            
+            # Hurst exponent is -slope/2
+            self.hurst_exponent = -slope / 2
+            
+            # Calculate R-squared
+            y_pred = np.polyval(coeffs, log_scale)
+            ss_res = np.sum((log_variance - y_pred) ** 2)
+            ss_tot = np.sum((log_variance - np.mean(log_variance)) ** 2)
+            r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+            self.scaling_error = 1 - r_squared
+            
+        except (np.linalg.LinAlgError, ValueError):
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            
+    def _calculate_confidence_interval(self):
+        """Calculate confidence interval for the Hurst exponent."""
+        if np.isnan(self.hurst_exponent):
+            self.confidence_interval = (np.nan, np.nan)
+            return
+            
+        # Bootstrap confidence interval
+        n_bootstrap = self.n_bootstrap
+        h_bootstrap = []
+        
+        valid_mask = ~np.isnan(self.wavelet_variances)
+        scale_valid = self.scales[valid_mask]
+        variance_valid = self.wavelet_variances[valid_mask]
+        
+        for _ in range(n_bootstrap):
+            try:
+                # Bootstrap sample of variances
+                indices = np.random.choice(len(variance_valid), size=len(variance_valid), replace=True)
+                variance_bootstrap = variance_valid[indices]
+                
+                # Fit scaling law to bootstrap sample
+                log_scale = np.log(scale_valid)
+                log_variance = np.log(variance_bootstrap)
+                coeffs = np.polyfit(log_scale, log_variance, 1)
+                h_bootstrap.append(-coeffs[0] / 2)
+            except:
+                continue
+                
+        if h_bootstrap:
+            alpha = 1 - self.confidence_level
+            lower_percentile = (alpha / 2) * 100
+            upper_percentile = (1 - alpha / 2) * 100
+            
+            self.confidence_interval = (
+                np.percentile(h_bootstrap, lower_percentile),
+                np.percentile(h_bootstrap, upper_percentile)
+            )
+        else:
+            self.confidence_interval = (np.nan, np.nan)
+            
+    def get_results(self) -> Dict[str, Any]:
+        """Get estimation results."""
+        results = {
+            'hurst_exponent': self.hurst_exponent,
+            'scales': self.scales,
+            'wavelet_variances': self.wavelet_variances,
+            'scaling_error': self.scaling_error,
+            'confidence_interval': self.confidence_interval,
+            'confidence_level': self.confidence_level,
+            'parameters': {
+                'wavelet': self.wavelet,
+                'min_scale': self.min_scale,
+                'max_scale': self.max_scale,
+                'num_scales': self.num_scales
+            }
+        }
+        
+        # Add interpretation
+        if not np.isnan(self.hurst_exponent):
+            if self.hurst_exponent < 0.5:
+                dependence = "Short-range dependent (anti-persistent)"
+            elif self.hurst_exponent < 0.6:
+                dependence = "Short-range dependent (weakly anti-persistent)"
+            elif self.hurst_exponent < 0.9:
+                dependence = "Long-range dependent (persistent)"
+            else:
+                dependence = "Strongly long-range dependent (highly persistent)"
+                
+            results['interpretation'] = {
+                'dependence_type': dependence,
+                'reliability': 1 - getattr(self, 'scaling_error', 1.0)
+            }
+            
+        return results
+
+
+class WaveletVarianceEstimator(BaseEstimator):
+    """
+    Wavelet Variance estimator for long-range dependence.
+    
+    This method estimates long-range dependence by analyzing the scaling behavior
+    of wavelet coefficient variances across different scales. It's a simpler
+    variant of the log-variance method that works directly with variances.
+    
+    References:
+    - Moulines, E., Roueff, F., & Taqqu, M. S. (2007). On the spectral density
+      of the wavelet coefficients of processes with stationary increments and
+      application to log-normal multifractal processes. IEEE Transactions on
+      Information Theory, 53(3), 980-999.
+    """
+    
+    def __init__(self, name: str = "WaveletVariance", **kwargs):
+        super().__init__(name=name, **kwargs)
+        self.wavelet = kwargs.get('wavelet', 'db4')
+        self.num_scales = kwargs.get('num_scales', 20)
+        self.min_scale = kwargs.get('min_scale', 2)
+        self.max_scale = kwargs.get('max_scale', None)
+        self.confidence_level = kwargs.get('confidence_level', 0.95)
+        self.n_bootstrap = kwargs.get('n_bootstrap', 1000)
+        self.data = None
+        self.wavelet_coeffs = None
+        self.scales = None
+        self.wavelet_variances = None
+        self.hurst_exponent = None
+        self.scaling_error = None
+        self.confidence_interval = None
+        
+    def fit(self, data: np.ndarray, **kwargs) -> 'WaveletVarianceEstimator':
+        """Fit the Wavelet Variance estimator to the data."""
+        self.data = np.asarray(data, dtype=float)
+        self._validate_data()
+        return self
+        
+    def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
+        """Estimate long-range dependence using Wavelet Variance method."""
+        start_time = time.time()
+        
+        if data is not None:
+            self.fit(data, **kwargs)
+            
+        if self.data is None:
+            raise ValueError("No data available. Call fit() first.")
+            
+        # Generate scales
+        self._generate_scales()
+        
+        # Compute wavelet coefficients
+        self._compute_wavelet_coefficients()
+        
+        # Calculate wavelet variances
+        self._calculate_wavelet_variances()
+        
+        # Fit scaling law to extract Hurst exponent
+        self._fit_scaling_law()
+        
+        # Calculate confidence interval
+        self._calculate_confidence_interval()
+        
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
+        return self.get_results()
+        
+    def _validate_data(self):
+        """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
+        if len(self.data) < 100:
+            raise ValueError("Data must have at least 100 points for reliable wavelet analysis")
+        if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
+            raise ValueError("Data contains NaN or infinite values")
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
+            
+    def _generate_scales(self):
+        """Generate wavelet scales for analysis."""
+        if self.max_scale is None:
+            self.max_scale = len(self.data) // 4
+            
+        # Generate scales logarithmically spaced
+        self.scales = np.logspace(
+            np.log10(self.min_scale), 
+            np.log10(self.max_scale), 
+            self.num_scales, 
+            dtype=int
+        )
+        # Ensure unique scales
+        self.scales = np.unique(np.maximum(self.scales, self.min_scale))
+        
+    def _compute_wavelet_coefficients(self):
+        """Compute wavelet coefficients for all scales."""
+        self.wavelet_coeffs = {}
+        
+        for scale in self.scales:
+            try:
+                # Use PyWavelets for wavelet decomposition
+                coeffs = pywt.wavedec(self.data, self.wavelet, level=scale, mode='periodic')
+                # Store detail coefficients (excluding approximation)
+                self.wavelet_coeffs[scale] = coeffs[1:] if len(coeffs) > 1 else []
+            except Exception as e:
+                logger.warning(f"Failed to compute wavelet coefficients for scale {scale}: {e}")
+                self.wavelet_coeffs[scale] = []
+                
+    def _calculate_wavelet_variances(self):
+        """Calculate wavelet variances for all scales."""
+        self.wavelet_variances = np.zeros(len(self.scales))
+        
+        for i, scale in enumerate(self.scales):
+            coeffs = self.wavelet_coeffs.get(scale, [])
+            if coeffs:
+                # Calculate variance of wavelet coefficients
+                all_coeffs = np.concatenate(coeffs)
+                if len(all_coeffs) > 0:
+                    self.wavelet_variances[i] = np.var(all_coeffs)
+                else:
+                    self.wavelet_variances[i] = np.nan
+            else:
+                self.wavelet_variances[i] = np.nan
+                
+    def _fit_scaling_law(self):
+        """Fit scaling law to extract Hurst exponent."""
+        # Get valid variance values
+        valid_mask = ~np.isnan(self.wavelet_variances)
+        if np.sum(valid_mask) < 3:
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            return
+            
+        scale_valid = self.scales[valid_mask]
+        variance_valid = self.wavelet_variances[valid_mask]
+        
+        try:
+            # Direct variance scaling: V(s) = s^(2H-1)
+            log_scale = np.log(scale_valid)
+            log_variance = np.log(variance_valid)
+            
+            # Fit linear relationship
+            coeffs = np.polyfit(log_scale, log_variance, 1)
+            slope = coeffs[0]
+            
+            # Hurst exponent is (slope + 1) / 2
+            self.hurst_exponent = (slope + 1) / 2
+            
+            # Calculate R-squared
+            y_pred = np.polyval(coeffs, log_scale)
+            ss_res = np.sum((log_variance - y_pred) ** 2)
+            ss_tot = np.sum((log_variance - np.mean(log_variance)) ** 2)
+            r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+            self.scaling_error = 1 - r_squared
+            
+        except (np.linalg.LinAlgError, ValueError):
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            
+    def _calculate_confidence_interval(self):
+        """Calculate confidence interval for the Hurst exponent."""
+        if np.isnan(self.hurst_exponent):
+            self.confidence_interval = (np.nan, np.nan)
+            return
+            
+        # Bootstrap confidence interval
+        n_bootstrap = self.n_bootstrap
+        h_bootstrap = []
+        
+        valid_mask = ~np.isnan(self.wavelet_variances)
+        scale_valid = self.scales[valid_mask]
+        variance_valid = self.wavelet_variances[valid_mask]
+        
+        for _ in range(n_bootstrap):
+            try:
+                # Bootstrap sample of variances
+                indices = np.random.choice(len(variance_valid), size=len(variance_valid), replace=True)
+                variance_bootstrap = variance_valid[indices]
+                
+                # Fit scaling law to bootstrap sample
+                log_scale = np.log(scale_valid)
+                log_variance = np.log(variance_bootstrap)
+                coeffs = np.polyfit(log_scale, log_variance, 1)
+                h_bootstrap.append((coeffs[0] + 1) / 2)
+            except:
+                continue
+                
+        if h_bootstrap:
+            alpha = 1 - self.confidence_level
+            lower_percentile = (alpha / 2) * 100
+            upper_percentile = (1 - alpha / 2) * 100
+            
+            self.confidence_interval = (
+                np.percentile(h_bootstrap, lower_percentile),
+                np.percentile(h_bootstrap, upper_percentile)
+            )
+        else:
+            self.confidence_interval = (np.nan, np.nan)
+            
+    def get_results(self) -> Dict[str, Any]:
+        """Get estimation results."""
+        results = {
+            'hurst_exponent': self.hurst_exponent,
+            'scales': self.scales,
+            'wavelet_variances': self.wavelet_variances,
+            'scaling_error': self.scaling_error,
+            'confidence_interval': self.confidence_interval,
+            'confidence_level': self.confidence_level,
+            'parameters': {
+                'wavelet': self.wavelet,
+                'min_scale': self.min_scale,
+                'max_scale': self.max_scale,
+                'num_scales': self.num_scales
+            }
+        }
+        
+        # Add interpretation
+        if not np.isnan(self.hurst_exponent):
+            if self.hurst_exponent < 0.5:
+                dependence = "Short-range dependent (anti-persistent)"
+            elif self.hurst_exponent < 0.6:
+                dependence = "Short-range dependent (weakly anti-persistent)"
+            elif self.hurst_exponent < 0.9:
+                dependence = "Long-range dependent (persistent)"
+            else:
+                dependence = "Strongly long-range dependent (highly persistent)"
+                
+            results['interpretation'] = {
+                'dependence_type': dependence,
+                'reliability': 1 - getattr(self, 'scaling_error', 1.0)
+            }
+            
+        return results

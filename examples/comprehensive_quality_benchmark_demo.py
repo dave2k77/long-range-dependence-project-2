@@ -72,6 +72,8 @@ try:
         from estimators.high_performance_rs import HighPerformanceRSEstimator
         from estimators.high_performance_whittle import HighPerformanceWhittleMLEEstimator
         from estimators.high_performance_wavelet_whittle import HighPerformanceWaveletWhittleEstimator
+        from estimators.high_performance_dma import HighPerformanceDMAEstimator
+        from estimators.high_performance_wavelet_variance import HighPerformanceWaveletVarianceEstimator
         
         ESTIMATORS = {
             'DFA': HighPerformanceDFAEstimator,
@@ -79,7 +81,9 @@ try:
             'Higuchi': HighPerformanceHiguchiEstimator,
             'RS': HighPerformanceRSEstimator,
             'Whittle': HighPerformanceWhittleMLEEstimator,
-            'WaveletWhittle': HighPerformanceWaveletWhittleEstimator
+            'WaveletWhittle': HighPerformanceWaveletWhittleEstimator,
+            'DMA': HighPerformanceDMAEstimator,
+            'WaveletVariance': HighPerformanceWaveletVarianceEstimator
         }
         ESTIMATORS_AVAILABLE = True
         print("✅ Successfully imported estimators from individual files")
@@ -88,7 +92,8 @@ try:
             # Try importing from high_performance module
             from estimators.high_performance import (
                 HighPerformanceDFAEstimator, HighPerformanceGPHEstimator, HighPerformanceHiguchiEstimator,
-                HighPerformanceRSEstimator, HighPerformanceWhittleMLEEstimator, HighPerformanceWaveletWhittleEstimator
+                HighPerformanceRSEstimator, HighPerformanceWhittleMLEEstimator, HighPerformanceWaveletWhittleEstimator,
+                HighPerformanceDMAEstimator, HighPerformanceWaveletVarianceEstimator
             )
             ESTIMATORS = {
                 'DFA': HighPerformanceDFAEstimator,
@@ -96,7 +101,9 @@ try:
                 'Higuchi': HighPerformanceHiguchiEstimator,
                 'RS': HighPerformanceRSEstimator,
                 'Whittle': HighPerformanceWhittleMLEEstimator,
-                'WaveletWhittle': HighPerformanceWaveletWhittleEstimator
+                'WaveletWhittle': HighPerformanceWaveletWhittleEstimator,
+                'DMA': HighPerformanceDMAEstimator,
+                'WaveletVariance': HighPerformanceWaveletVarianceEstimator
             }
             ESTIMATORS_AVAILABLE = True
             print("✅ Successfully imported estimators from high_performance module")
@@ -109,6 +116,8 @@ try:
                 from estimators.high_performance_rs import HighPerformanceRSEstimator
                 from estimators.high_performance_whittle import HighPerformanceWhittleMLEEstimator
                 from estimators.high_performance_wavelet_whittle import HighPerformanceWaveletWhittleEstimator
+                from estimators.high_performance_dma import HighPerformanceDMAEstimator
+                from estimators.high_performance_wavelet_variance import HighPerformanceWaveletVarianceEstimator
                 
                 ESTIMATORS = {
                     'DFA': HighPerformanceDFAEstimator,
@@ -116,7 +125,9 @@ try:
                     'Higuchi': HighPerformanceHiguchiEstimator,
                     'RS': HighPerformanceRSEstimator,
                     'Whittle': HighPerformanceWhittleMLEEstimator,
-                    'WaveletWhittle': HighPerformanceWaveletWhittleEstimator
+                    'WaveletWhittle': HighPerformanceWaveletWhittleEstimator,
+                    'DMA': HighPerformanceDMAEstimator,
+                    'WaveletVariance': HighPerformanceWaveletVarianceEstimator
                 }
                 ESTIMATORS_AVAILABLE = True
                 print("✅ Successfully imported estimators using relative imports")
@@ -255,7 +266,9 @@ try:
                     'Higuchi': lambda: RealisticMockEstimator('Higuchi'),
                     'RS': lambda: RealisticMockEstimator('RS'),
                     'Whittle': lambda: RealisticMockEstimator('Whittle'),
-                    'WaveletWhittle': lambda: RealisticMockEstimator('WaveletWhittle')
+                    'WaveletWhittle': lambda: RealisticMockEstimator('WaveletWhittle'),
+                    'DMA': lambda: RealisticMockEstimator('DMA'),
+                    'WaveletVariance': lambda: RealisticMockEstimator('WaveletVariance')
                 }
                 ESTIMATORS_AVAILABLE = True
                 print("✅ Created mock estimators for demonstration")

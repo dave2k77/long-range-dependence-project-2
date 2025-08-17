@@ -934,3 +934,274 @@ class HiguchiEstimator(BaseEstimator):
             }
             
         return results
+
+
+class DMAEstimator(BaseEstimator):
+    """
+    Detrended Moving Average (DMA) estimator for Hurst exponent.
+    
+    The DMA method estimates the Hurst exponent by analyzing the variance
+    of detrended moving averages at different scales. It's particularly
+    effective for non-stationary time series with trends.
+    
+    References:
+    - Vandewalle, N., & Ausloos, M. (1998). Coherent and random sequences 
+      in financial fluctuations. Physica A: Statistical Mechanics and its 
+      Applications, 246(3-4), 454-459.
+    """
+    
+    def __init__(self, name: str = "DMA", **kwargs):
+        super().__init__(name=name, **kwargs)
+        self.window_sizes = kwargs.get('window_sizes', None)
+        self.min_window = kwargs.get('min_window', 10)
+        self.max_window = kwargs.get('max_window', None)
+        self.num_windows = kwargs.get('num_windows', 20)
+        self.confidence_level = kwargs.get('confidence_level', 0.95)
+        self.n_bootstrap = kwargs.get('n_bootstrap', 1000)
+        self.data = None
+        self.window_sizes_used = None
+        self.fluctuations = None
+        self.hurst_exponent = None
+        self.confidence_interval = None
+        self.scaling_error = None
+        
+    def fit(self, data: np.ndarray, **kwargs) -> 'DMAEstimator':
+        """Fit the DMA estimator to the data."""
+        self.data = np.asarray(data, dtype=float)
+        self._validate_data()
+        self._generate_window_sizes()
+        return self
+        
+    def estimate(self, data: np.ndarray = None, **kwargs) -> Dict[str, Any]:
+        """Estimate Hurst exponent using DMA method."""
+        import time
+        start_time = time.time()
+        
+        if data is not None:
+            self.fit(data, **kwargs)
+            
+        if self.data is None:
+            raise ValueError("No data available. Call fit() first.")
+            
+        # Calculate fluctuations for all window sizes
+        self._calculate_fluctuations()
+        
+        # Fit scaling law to extract Hurst exponent
+        self._fit_scaling_law()
+        
+        # Calculate confidence interval
+        self._calculate_confidence_interval()
+        
+        # Record execution time
+        self.execution_time = time.time() - start_time
+        
+        return self.get_results()
+        
+    def _validate_data(self):
+        """Validate input data."""
+        if self.data is None:
+            raise ValueError("No data provided")
+        if len(self.data) < 100:
+            raise ValueError("Data must have at least 100 points for reliable DMA analysis")
+        if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
+            raise ValueError("Data contains NaN or infinite values")
+        # Check if data is constant (which would cause issues)
+        if np.std(self.data) == 0:
+            raise ValueError("Data is constant, cannot estimate LRD")
+            
+    def _generate_window_sizes(self):
+        """Generate window sizes for analysis."""
+        if self.max_window is None:
+            self.max_window = len(self.data) // 4
+            
+        # Generate window sizes logarithmically spaced
+        self.window_sizes_used = np.logspace(
+            np.log10(self.min_window), 
+            np.log10(self.max_window), 
+            self.num_windows, 
+            dtype=int
+        )
+        # Ensure unique window sizes and minimum size
+        self.window_sizes_used = np.unique(np.maximum(self.window_sizes_used, self.min_window))
+        
+    def _calculate_fluctuations(self):
+        """Calculate fluctuations for all window sizes."""
+        self.fluctuations = np.zeros(len(self.window_sizes_used))
+        self.fluctuation_std = np.zeros(len(self.window_sizes_used))
+        
+        for i, window_size in enumerate(self.window_sizes_used):
+            fluctuation_list = []
+            
+            # Calculate fluctuations for different starting points
+            n_starting_points = min(20, len(self.data) // window_size)
+            if n_starting_points == 0:
+                self.fluctuations[i] = np.nan
+                self.fluctuation_std[i] = np.nan
+                continue
+                
+            for start_idx in range(0, len(self.data) - window_size, 
+                                 max(1, (len(self.data) - window_size) // n_starting_points)):
+                fluctuation = self._calculate_fluctuation_for_window(window_size, start_idx)
+                if not np.isnan(fluctuation):
+                    fluctuation_list.append(fluctuation)
+                    
+            if fluctuation_list:
+                self.fluctuations[i] = np.mean(fluctuation_list)
+                self.fluctuation_std[i] = np.std(fluctuation_list)
+            else:
+                self.fluctuations[i] = np.nan
+                self.fluctuation_std[i] = np.nan
+                
+    def _calculate_fluctuation_for_window(self, window_size: int, start_idx: int) -> float:
+        """Calculate fluctuation for a specific window and starting point."""
+        try:
+            # Extract window data
+            window_data = self.data[start_idx:start_idx + window_size]
+            
+            # Calculate moving average
+            moving_avg = self._calculate_moving_average(window_data, window_size // 4)
+            
+            # Detrend the data
+            detrended = window_data - moving_avg
+            
+            # Calculate root mean square fluctuation
+            fluctuation = np.sqrt(np.mean(detrended ** 2))
+            
+            return fluctuation
+            
+        except Exception:
+            return np.nan
+            
+    def _calculate_moving_average(self, data: np.ndarray, window: int) -> np.ndarray:
+        """Calculate moving average with given window size."""
+        if window <= 1:
+            return np.zeros_like(data)
+            
+        # Use convolution for efficient moving average
+        kernel = np.ones(window) / window
+        padded_data = np.pad(data, (window//2, window//2), mode='edge')
+        moving_avg = np.convolve(padded_data, kernel, mode='valid')
+        
+        # Ensure same length as original data
+        if len(moving_avg) > len(data):
+            moving_avg = moving_avg[:len(data)]
+        elif len(moving_avg) < len(data):
+            # Pad with edge values if needed
+            moving_avg = np.pad(moving_avg, (0, len(data) - len(moving_avg)), mode='edge')
+            
+        return moving_avg
+        
+    def _fit_scaling_law(self):
+        """Fit scaling law to extract Hurst exponent."""
+        # Get valid fluctuation values
+        valid_mask = ~np.isnan(self.fluctuations)
+        if np.sum(valid_mask) < 3:
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            return
+            
+        window_valid = self.window_sizes_used[valid_mask]
+        fluctuation_valid = self.fluctuations[valid_mask]
+        
+        try:
+            # Log-log linear fit: log(F) = H * log(w) + C
+            log_window = np.log(window_valid)
+            log_fluctuation = np.log(fluctuation_valid)
+            
+            # Fit linear relationship
+            coeffs = np.polyfit(log_window, log_fluctuation, 1)
+            slope = coeffs[0]
+            
+            # Hurst exponent is the slope
+            self.hurst_exponent = slope
+            
+            # Calculate R-squared
+            y_pred = np.polyval(coeffs, log_window)
+            ss_res = np.sum((log_fluctuation - y_pred) ** 2)
+            ss_tot = np.sum((log_fluctuation - np.mean(log_fluctuation)) ** 2)
+            r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+            self.scaling_error = 1 - r_squared
+            
+        except (np.linalg.LinAlgError, ValueError):
+            self.hurst_exponent = np.nan
+            self.scaling_error = np.nan
+            
+    def _calculate_confidence_interval(self):
+        """Calculate confidence interval for the Hurst exponent."""
+        if np.isnan(self.hurst_exponent):
+            self.confidence_interval = (np.nan, np.nan)
+            return
+            
+        # Get valid fluctuation values for error estimation
+        valid_mask = ~np.isnan(self.fluctuations)
+        if np.sum(valid_mask) < 3:
+            self.confidence_interval = (np.nan, np.nan)
+            return
+            
+        window_valid = self.window_sizes_used[valid_mask]
+        fluctuation_valid = self.fluctuations[valid_mask]
+        fluctuation_std_valid = self.fluctuation_std[valid_mask]
+        
+        # Bootstrap confidence interval
+        n_bootstrap = self.n_bootstrap
+        h_bootstrap = []
+        
+        for _ in range(n_bootstrap):
+            # Add noise to fluctuation values based on their standard deviations
+            fluctuation_noisy = fluctuation_valid + np.random.normal(0, fluctuation_std_valid)
+            fluctuation_noisy = np.maximum(fluctuation_noisy, 1e-10)  # Ensure positive values
+            
+            try:
+                log_window = np.log(window_valid)
+                log_fluctuation = np.log(fluctuation_noisy)
+                coeffs = np.polyfit(log_window, log_fluctuation, 1)
+                h_bootstrap.append(coeffs[0])
+            except:
+                continue
+                
+        if h_bootstrap:
+            alpha = 1 - self.confidence_level
+            lower_percentile = (alpha / 2) * 100
+            upper_percentile = (1 - alpha / 2) * 100
+            
+            self.confidence_interval = (
+                np.percentile(h_bootstrap, lower_percentile),
+                np.percentile(h_bootstrap, upper_percentile)
+            )
+        else:
+            self.confidence_interval = (np.nan, np.nan)
+            
+    def get_results(self) -> Dict[str, Any]:
+        """Get estimation results."""
+        results = {
+            'hurst_exponent': self.hurst_exponent,
+            'window_sizes': self.window_sizes_used,
+            'fluctuations': self.fluctuations,
+            'fluctuation_std': getattr(self, 'fluctuation_std', None),
+            'scaling_error': self.scaling_error,
+            'confidence_interval': self.confidence_interval,
+            'confidence_level': self.confidence_level,
+            'parameters': {
+                'min_window': self.min_window,
+                'max_window': self.max_window,
+                'num_windows': self.num_windows
+            }
+        }
+        
+        # Add interpretation
+        if not np.isnan(self.hurst_exponent):
+            if self.hurst_exponent < 0.5:
+                dependence = "Short-range dependent (anti-persistent)"
+            elif self.hurst_exponent < 0.6:
+                dependence = "Short-range dependent (weakly anti-persistent)"
+            elif self.hurst_exponent < 0.9:
+                dependence = "Long-range dependent (persistent)"
+            else:
+                dependence = "Strongly long-range dependent (highly persistent)"
+                
+            results['interpretation'] = {
+                'dependence_type': dependence,
+                'reliability': 1 - getattr(self, 'scaling_error', 1.0)
+            }
+            
+        return results
