@@ -236,24 +236,32 @@ class PerformanceLeaderboard:
         dataset_name : str
             Filter by specific dataset (if None, export all)
         """
-        with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-            # Main leaderboard
-            leaderboard = self.get_leaderboard(dataset_name)
-            if not leaderboard.empty:
-                leaderboard.to_excel(writer, sheet_name='Leaderboard', index=False)
-                
-            # Summary statistics
-            summary = self.get_summary_statistics(dataset_name)
-            if summary:
-                summary_df = pd.DataFrame([summary])
-                summary_df.to_excel(writer, sheet_name='Summary', index=False)
-                
-            # Top performers
-            top_performers = self.get_top_performers(n=10, dataset_name=dataset_name)
-            if not top_performers.empty:
-                top_performers.to_excel(writer, sheet_name='Top_Performers', index=False)
-                
-        logger.info(f"Leaderboard exported to {filename}")
+        try:
+            with pd.ExcelWriter(filename, engine='openpyxl') as writer:
+                # Main leaderboard
+                leaderboard = self.get_leaderboard(dataset_name)
+                if not leaderboard.empty:
+                    leaderboard.to_excel(writer, sheet_name='Leaderboard', index=False)
+                    
+                # Summary statistics
+                summary = self.get_summary_statistics(dataset_name)
+                if summary:
+                    summary_df = pd.DataFrame([summary])
+                    summary_df.to_excel(writer, sheet_name='Summary', index=False)
+                    
+                # Top performers
+                top_performers = self.get_top_performers(n=10, dataset_name=dataset_name)
+                if not top_performers.empty:
+                    top_performers.to_excel(writer, sheet_name='Top_Performers', index=False)
+                    
+            logger.info(f"Leaderboard exported to {filename}")
+        except ImportError as e:
+            logger.error(f"Excel export failed (missing openpyxl dependency): {e}")
+            logger.info("Please install 'openpyxl' for Excel export support")
+            raise
+        except Exception as e:
+            logger.error(f"Excel export failed: {e}")
+            raise
         
     def plot_performance_comparison(self, metric: str = 'rmse', 
                                   dataset_name: str = None) -> None:

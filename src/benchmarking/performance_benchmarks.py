@@ -384,10 +384,17 @@ class PerformanceBenchmarker:
         df.to_csv(filepath, index=False)
         logger.info(f"Benchmark results saved to: {filepath}")
         
-        # Also save as Excel for better formatting
-        excel_filepath = filepath.with_suffix('.xlsx')
-        df.to_excel(excel_filepath, index=False)
-        logger.info(f"Benchmark results also saved to: {excel_filepath}")
+        # Also save as Excel for better formatting (with fallback)
+        try:
+            excel_filepath = filepath.with_suffix('.xlsx')
+            df.to_excel(excel_filepath, index=False)
+            logger.info(f"Benchmark results also saved to: {excel_filepath}")
+        except ImportError as e:
+            logger.warning(f"Excel export failed (missing openpyxl dependency): {e}")
+            logger.info("Results saved as CSV only. Install 'openpyxl' for Excel support.")
+        except Exception as e:
+            logger.warning(f"Excel export failed: {e}")
+            logger.info("Results saved as CSV only.")
     
     def generate_performance_report(self, df: pd.DataFrame) -> str:
         """Generate a comprehensive performance report."""

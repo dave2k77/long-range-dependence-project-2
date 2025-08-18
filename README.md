@@ -194,10 +194,7 @@ python run_tests.py
 
 ### Core Demos
 ```bash
-# Quality evaluation
-python examples/synthetic_data_quality_demo.py
-
-# Comprehensive benchmark
+# Comprehensive benchmark (main demo)
 python examples/comprehensive_quality_benchmark_demo.py
 
 # Automated quality tuning
@@ -218,27 +215,25 @@ python examples/data_preprocessing_demo.py
 # Submission system
 python examples/submission_system_demo.py
 
-# Synthetic data generation
-python examples/synthetic_data_demo.py
+# Comprehensive synthetic data generation
+python examples/comprehensive_synthetic_data_demo.py
 
-# Direct benchmarking
-python examples/direct_demo.py
-
-# Simple workflow
-python examples/simple_demo.py
-```
-
-### Specialized Demos
-```bash
 # Quality system integration
 python examples/comprehensive_quality_system_demo.py
 
 # High-performance synthetic data
 python examples/high_performance_synthetic_data_demo.py
-
-# Simple quality demo
-python examples/simple_quality_demo.py
 ```
+
+## 📖 Documentation
+
+For comprehensive documentation, visit the **[Documentation Index](docs/README.md)** which includes:
+
+- **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
+- **[Project Status](docs/project-status/PROJECT_STATUS_FINAL.md)** - Current project status
+- **[Implementation Details](docs/implementation/FINAL_IMPLEMENTATION_SUMMARY.md)** - Technical implementation
+- **[Demo Results](docs/demos/COMPREHENSIVE_DEMO_RESULTS_SUMMARY.md)** - Latest demo outcomes
+- **[Academic Manuscripts](docs/manuscripts/)** - Research documentation
 
 ## 📊 Output Structure
 
