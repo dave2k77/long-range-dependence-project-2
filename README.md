@@ -180,7 +180,7 @@ A comprehensive data processing pipeline with normalization and quality evaluati
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/dave2k77/long-range-dependence-project-2.git
 cd long-range-dependence-project-2
 
 # Install dependencies
